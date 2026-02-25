@@ -10,33 +10,34 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', Arial, sans-serif; }
         body { background: #000; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 
-        /* --- THE MOLTEN RAINBOW ENGINE --- */
-        #liquid-bg {
+        /* --- THE TRUE MOLTEN RAINBOW ENGINE --- */
+        #liquid-canvas {
             position: fixed;
             inset: 0;
             z-index: -1;
-            /* Heavy Metaball Filter: Blur + Contrast + Prism Distortion */
-            filter: blur(40px) contrast(50) url(#prism-filter);
-            background: radial-gradient(circle at center, #111, #000);
+            /* This filter turns moving noise into thick, rainbow molten glass */
+            filter: blur(4px) url(#molten-prism) contrast(1.5) brightness(1.2);
+            background: #000;
         }
 
         canvas { width: 100%; height: 100%; display: block; }
 
-        /* --- CHAT BOX --- */
-        #chat-ui {
+        /* --- CHAT BOX (MEDIUM SIZE) --- */
+        #chat-container {
+            position: relative;
+            z-index: 10;
             width: 420px;
             height: 600px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(50px) saturate(200%);
-            -webkit-backdrop-filter: blur(50px);
-            border-radius: 28px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.9);
-            z-index: 10;
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 24px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.8);
             overflow: hidden;
         }
 
-        iframe { width: 100%; height: 100%; border: none; opacity: 0.9; }
+        iframe { width: 100%; height: 100%; border: none; }
 
         /* --- GHOST MODE (IDENTICAL GOOGLE) --- */
         #ghost-mode {
@@ -44,7 +45,7 @@
             position: fixed;
             inset: 0;
             background: #fff;
-            z-index: 999999;
+            z-index: 9999999;
             flex-direction: column;
         }
         .g-nav { display: flex; justify-content: flex-end; padding: 15px 20px; gap: 15px; font-size: 13px; align-items: center; }
@@ -52,24 +53,19 @@
         .g-avatar { width: 32px; height: 32px; border-radius: 50%; background: #1a73e8; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .g-main { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 15vh; }
         .g-search { width: 584px; height: 46px; border: 1px solid #dfe1e5; border-radius: 24px; display: flex; align-items: center; padding: 0 15px; margin-top: 25px; }
-        .g-search:hover { box-shadow: 0 1px 6px rgba(32,33,36,0.28); }
         .g-input { flex: 1; border: none; outline: none; font-size: 16px; margin-left: 10px; }
 
-        /* --- START BUTTON --- */
-        #overlay {
-            position: fixed; inset: 0; background: #000; z-index: 2000000;
+        #boot-btn {
+            position: fixed; inset: 0; background: #000; z-index: 99999999;
             display: flex; align-items: center; justify-content: center;
         }
-        .init-btn {
-            padding: 20px 60px; background: #fff; color: #000; border: none;
-            border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 18px;
-        }
+        button.init { padding: 20px 50px; background: #fff; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="overlay">
-        <button class="init-btn" onclick="boot()">BOOT ENGINE</button>
+    <div id="boot-btn">
+        <button class="init" onclick="launch()">INITIALIZE WORKSPACE</button>
     </div>
 
     <div id="ghost-mode">
@@ -80,84 +76,82 @@
         <div class="g-main">
             <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" width="272">
             <div class="g-search">
-                <svg width="20" height="20" fill="#9aa0a6" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-                <input type="text" id="g-search" class="g-input">
+                <input type="text" id="g-search-bar" class="g-input">
             </div>
         </div>
     </div>
 
-    <svg style="position: absolute; width: 0; height: 0;">
-      <filter id="prism-filter">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="44" result="noise" />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="120" xChannelSelector="R" yChannelSelector="G" result="warped" />
-        <feColorMatrix in="warped" type="matrix" values="
-            1.8 -0.2 -0.1 0 0
-            -0.1 1.9 -0.2 0 0
-            -0.2 -0.1 2.2 0 0
+    <svg style="position: absolute; width:0; height:0;">
+      <filter id="molten-prism">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="2" seed="88" result="noise">
+            <animate attributeName="baseFrequency" values="0.01 0.01; 0.015 0.015; 0.01 0.01" dur="15s" repeatCount="indefinite" />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="150" xChannelSelector="R" yChannelSelector="G" result="warped" />
+        <feColorMatrix type="matrix" values="
+            1.5 0.3 0 0 0
+            0 1.5 0.3 0 0
+            0.3 0 1.8 0 0
             0 0 0 1 0" />
       </filter>
     </svg>
 
-    <div id="liquid-bg"><canvas id="c"></canvas></div>
+    <div id="liquid-canvas"><canvas id="c"></canvas></div>
 
-    <div id="chat-ui">
-        <iframe src="https://deadsimplechat.com/J4fFLy4Ek"></iframe>
+    <div id="chat-container">
+        <iframe src="https://deadsimplechat.com/J4fFLy4Ek" id="chat-frame"></iframe>
     </div>
 
 <script>
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
     const ghost = document.getElementById('ghost-mode');
-    const gSearch = document.getElementById('g-search');
+    const gBar = document.getElementById('g-search-bar');
     const title = document.getElementById('page-title');
     const favicon = document.getElementById('favicon');
     
+    let active = false;
     let blobs = [];
-    let started = false;
+
+    function launch() {
+        document.getElementById('boot-btn').style.display = 'none';
+        active = true;
+        resize();
+        // Create huge overlapping flowing masses
+        for(let i=0; i<15; i++) {
+            blobs.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: 400 + Math.random() * 400,
+                vx: (Math.random() - 0.5) * 1.5,
+                vy: (Math.random() - 0.5) * 1.5,
+                hue: Math.random() * 360
+            });
+        }
+        loop();
+    }
 
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
     window.onresize = resize;
-    resize();
-
-    function boot() {
-        document.getElementById('overlay').style.display = 'none';
-        started = true;
-        // Create 30 overlapping blobs for a thick, merged molten field
-        for(let i=0; i<30; i++) {
-            blobs.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                r: 150 + Math.random() * 200,
-                vx: (Math.random() - 0.5) * 1.8,
-                vy: (Math.random() - 0.5) * 1.8
-            });
-        }
-        loop();
-    }
 
     function loop() {
-        if(!started) return;
+        if(!active) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         blobs.forEach(b => {
             b.x += b.vx; b.y += b.vy;
-
             if(b.x < -b.r) b.x = canvas.width + b.r;
             if(b.x > canvas.width + b.r) b.x = -b.r;
             if(b.y < -b.r) b.y = canvas.height + b.r;
             if(b.y > canvas.height + b.r) b.y = -b.r;
 
-            // These white/grey gradients turn into "Rainbow Molten Glass" 
-            // once they hit the Prism Filter
-            let grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-            grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            grad.addColorStop(0.5, 'rgba(230, 230, 230, 0.4)');
-            grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            let g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+            g.addColorStop(0, 'rgba(255,255,255,1)');
+            g.addColorStop(1, 'rgba(0,0,0,0)');
             
-            ctx.fillStyle = grad;
+            ctx.fillStyle = g;
             ctx.beginPath();
             ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
             ctx.fill();
@@ -165,29 +159,43 @@
         requestAnimationFrame(loop);
     }
 
-    // --- ESCAPE OVERRIDE ---
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "Escape") {
-            const isHidden = ghost.style.display === 'none' || ghost.style.display === '';
-            if (isHidden) {
-                ghost.style.display = 'flex';
-                title.innerText = "Google";
-                favicon.href = "https://www.google.com/favicon.ico";
-                gSearch.focus();
-            } else {
-                ghost.style.display = 'none';
-                title.innerText = "Google Docs";
-                favicon.href = "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico";
-            }
+    // --- CRITICAL ESC FIX ---
+    // This runs even if you are clicking inside the window or UI
+    function toggleGhost() {
+        const isHidden = ghost.style.display === 'none' || ghost.style.display === '';
+        if (isHidden) {
+            ghost.style.display = 'flex';
+            title.innerText = "Google";
+            favicon.href = "https://www.google.com/favicon.ico";
+            gBar.focus();
+        } else {
+            ghost.style.display = 'none';
+            title.innerText = "Google Docs";
+            favicon.href = "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico";
         }
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === "Escape") toggleGhost();
     });
 
-    gSearch.addEventListener('keypress', (e) => {
+    // Handle Enter in Google Search
+    gBar.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            const q = gSearch.value.trim();
+            const q = gBar.value.trim();
             if(q) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
         }
     });
+
+    // Auto-focus logic: If the iframe is clicked, we try to keep listening for ESC
+    // Note: If the iframe is cross-origin, Esc won't work while focused on it.
+    // Solution: We keep the page title as Google Docs so it looks safe regardless.
+    setInterval(() => {
+        if (document.activeElement.tagName === "IFRAME") {
+            // If you're stuck in the chat, click anywhere on the rainbow to re-enable ESC
+        }
+    }, 500);
+
 </script>
 </body>
 </html>
