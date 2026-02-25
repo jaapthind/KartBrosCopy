@@ -3,262 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workspace - Liquid Widgets</title>
-    
+    <title>Liquid Glass Workspace</title>
     <style>
         :root {
-            --bg: #0b0c10; 
-            --side: #161b22; 
-            --accent: #58a6ff; 
-            --text: #c9d1d9; 
-            --border: #30363d;
+            --bg: #050505;
+            --accent: #58a6ff;
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-surface: rgba(255, 255, 255, 0.05);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        body { 
-            background: radial-gradient(circle at center, #1a1c23, #0b0c10); 
-            color: var(--text); 
-            height: 100vh; 
-            display: flex; 
-            justify-content: center; 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+
+        body {
+            background: var(--bg);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            overflow: hidden; 
-            gap: 20px;
+            overflow: hidden;
+            gap: 30px;
         }
 
-        /* --- SVG LIQUID FILTER --- */
+        /* --- FULL PAGE LIQUID BACKGROUND --- */
+        #bg-canvas-container {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            filter: url(#glass-distortion); /* Applying your filter to the whole background */
+            background: linear-gradient(45deg, #0b0c10, #1a1c23);
+        }
+
+        #bg-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- SVG FILTER --- */
         .svg-filters { position: absolute; width: 0; height: 0; }
 
-        /* --- LIQUID GLASS CARD BASE --- */
+        /* --- THE LIQUID GLASS BOXES --- */
         .liquid-glass-card {
             position: relative;
-            width: 320px;
-            height: 500px;
+            width: 380px;
+            height: 550px;
             border-radius: 28px;
             isolation: isolate;
+            box-shadow: 0px 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid var(--glass-border);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--glass-surface);
         }
 
-        .liquid-glass-card::after {
+        /* Refraction Effect */
+        .liquid-glass-card::before {
             content: '';
             position: absolute;
             inset: 0;
             z-index: -1;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            filter: url(#glass-distortion);
-            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
         }
 
         .widget-content {
-            padding: 20px;
+            padding: 25px;
             height: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
             color: white;
+            z-index: 10;
         }
 
-        /* --- CHAT WRAPPER --- */
+        /* --- CHAT HUB --- */
         #chat-wrapper {
-            width: 450px;
-            height: 80vh;
-            background: var(--side);
-            border-radius: 16px;
-            border: 1px solid var(--border);
+            width: 500px;
+            height: 85vh;
+            border-radius: 24px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
 
-        .relay-tag { 
-            padding: 10px; 
-            background: #010409; 
-            font-size: 10px; 
-            color: var(--accent); 
-            letter-spacing: 2px; 
+        .relay-tag {
+            padding: 12px;
+            background: rgba(88, 166, 255, 0.1);
+            font-size: 11px;
+            color: var(--accent);
             text-align: center;
-            font-family: monospace;
+            letter-spacing: 3px;
+            font-weight: bold;
+            border-bottom: 1px solid var(--glass-border);
         }
 
-        iframe { flex-grow: 1; border: none; }
+        iframe { flex-grow: 1; border: none; filter: grayscale(0.2) contrast(1.1); }
 
-        /* --- COOKIE CLICKER STYLES --- */
+        /* --- ADVANCED COOKIE CLICKER --- */
+        .cookie-container { text-align: center; }
         #cookie {
-            width: 120px;
+            width: 140px;
+            filter: drop-shadow(0 0 20px rgba(255, 174, 66, 0.4));
             cursor: pointer;
-            transition: transform 0.1s;
-            filter: drop-shadow(0 0 10px rgba(210, 105, 30, 0.5));
+            transition: transform 0.05s ease;
             margin: 20px 0;
         }
-        #cookie:active { transform: scale(0.9); }
-        .stat-box { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #ffca28; }
-        .upgrade-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid var(--accent);
+        #cookie:active { transform: scale(0.85) rotate(5deg); }
+        .score { font-size: 32px; font-weight: 800; color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+        .upgrade-grid { display: grid; gap: 8px; margin-top: auto; }
+        .g-button {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 12px;
             color: white;
-            padding: 10px;
-            width: 100%;
-            margin: 5px 0;
-            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
         }
-        .upgrade-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .g-button:hover:not(:disabled) { background: rgba(88, 166, 255, 0.2); border-color: var(--accent); }
+        .g-button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* --- PHYSICS SIM STYLES --- */
-        #physics-canvas {
-            width: 100%;
-            height: 100%;
-            border-radius: 15px;
-            background: rgba(0,0,0,0.2);
-        }
+        /* --- LIQUID SIM CARD --- */
+        #sim-canvas { width: 100%; height: 280px; border-radius: 16px; background: rgba(0,0,0,0.3); margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <svg class="svg-filters">
   <defs>
-    <filter id="glass-distortion">
-      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="5" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" />
+    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025 0.025" numOctaves="2" seed="92" result="noise" />
+      <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+      <feDisplacementMap in="SourceGraphic" in2="blurred" scale="65" xChannelSelector="R" yChannelSelector="G" />
     </filter>
   </defs>
 </svg>
 
+<div id="bg-canvas-container">
+    <canvas id="bg-canvas"></canvas>
+</div>
+
 <div class="liquid-glass-card">
     <div class="widget-content">
-        <h3 style="margin-bottom: 10px; opacity: 0.8;">Cookie Lab</h3>
-        <div id="cookie-count" class="stat-box">0</div>
-        <p style="font-size: 12px; margin-bottom: 20px;">Cookies</p>
-        
-        <img id="cookie" src="https://cdn-icons-png.flaticon.com/512/548/548427.png" alt="Cookie" onclick="clickCookie()">
-        
-        <button class="upgrade-btn" onclick="buyUpgrade('auto')" id="btn-auto">Buy Auto-Baker (Cost: 15)</button>
-        <button class="upgrade-btn" onclick="buyUpgrade('multi')" id="btn-multi">Upgrade Oven (Cost: 50)</button>
-        <p id="cps-text" style="font-size: 11px; margin-top: 10px; opacity: 0.6;">Cookies per sec: 0</p>
+        <h2 style="font-size: 14px; opacity: 0.6; letter-spacing: 2px;">BAKERY_V4</h2>
+        <div class="cookie-container">
+            <div id="cookie-count" class="score">0</div>
+            <p id="cps-val" style="font-size: 12px; opacity: 0.8;">CPS: 0.0</p>
+            <img id="cookie" src="https://cdn-icons-png.flaticon.com/512/548/548427.png" onclick="clickCookie()">
+        </div>
+        <div class="upgrade-grid">
+            <button class="g-button" id="up-1" onclick="buy(1)"><span>Auto-Clicker</span> <b id="c-1">15</b></button>
+            <button class="g-button" id="up-2" onclick="buy(2)"><span>Grandma</span> <b id="c-2">100</b></button>
+            <button class="g-button" id="up-3" onclick="buy(3)"><span>Cookie Factory</span> <b id="c-3">500</b></button>
+            <button class="g-button" id="prestige" onclick="prestige()" style="color: #58a6ff; font-weight: bold; margin-top: 10px;"><span>PRESTIGE (Reset)</span> <b id="boost">x1.0</b></button>
+        </div>
     </div>
 </div>
 
 <div id="chat-wrapper">
-    <div class="relay-tag">TERMINAL_RELAY // ENCRYPTED_V3</div>
-    <iframe src="https://deadsimplechat.com/J4fFLy4Ek" title="Chat Room"></iframe>
+    <div class="relay-tag">SECURE_COMM_CHANNEL // NODE_09</div>
+    <iframe src="https://deadsimplechat.com/J4fFLy4Ek"></iframe>
 </div>
 
 <div class="liquid-glass-card">
-    <div class="widget-content" style="padding: 10px;">
-        <h3 style="margin-bottom: 10px; opacity: 0.8;">Liquid Core</h3>
-        <canvas id="physics-canvas"></canvas>
-        <p style="font-size: 11px; margin-top: 10px; opacity: 0.6;">Move cursor to disturb the fluid</p>
+    <div class="widget-content">
+        <h2 style="font-size: 14px; opacity: 0.6; letter-spacing: 2px;">FLUID_CORE</h2>
+        <canvas id="sim-canvas"></canvas>
+        <div style="margin-top: 20px; font-size: 13px; line-height: 1.6;">
+            <p>• <b>Interact:</b> Drag to stir the fluid.</p>
+            <p>• <b>Dynamic:</b> Reacts to background noise.</p>
+            <button class="g-button" style="margin-top: 15px; width: 100%; justify-content: center;" onclick="resetSim()">Reset Simulation</button>
+        </div>
+        <p style="margin-top: auto; font-size: 10px; opacity: 0.4; text-align: center;">V3 LIQUID ENGINE ACTIVE</p>
     </div>
 </div>
 
 <script>
-    /* --- COOKIE CLICKER LOGIC --- */
-    let cookies = 0;
-    let autoBakers = 0;
-    let multiplier = 1;
-    let autoCost = 15;
-    let multiCost = 50;
+    /* --- 1. FULL PAGE BACKGROUND SIMULATION --- */
+    const bgCanvas = document.getElementById('bg-canvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    let blobs = [];
 
-    function updateDisplay() {
-        document.getElementById('cookie-count').innerText = Math.floor(cookies);
-        document.getElementById('btn-auto').innerText = `Buy Auto-Baker (Cost: ${autoCost})`;
-        document.getElementById('btn-multi').innerText = `Upgrade Oven (Cost: ${multiCost})`;
-        document.getElementById('btn-auto').disabled = cookies < autoCost;
-        document.getElementById('btn-multi').disabled = cookies < multiCost;
-        document.getElementById('cps-text').innerText = `Cookies per sec: ${autoBakers}`;
+    function resize() {
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
     }
+
+    class Blob {
+        constructor() {
+            this.x = Math.random() * bgCanvas.width;
+            this.y = Math.random() * bgCanvas.height;
+            this.r = 150 + Math.random() * 200;
+            this.vx = (Math.random() - 0.5) * 2;
+            this.vy = (Math.random() - 0.5) * 2;
+            this.color = `hsla(${200 + Math.random() * 40}, 70%, 50%, 0.3)`;
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            if(this.x < -this.r) this.x = bgCanvas.width + this.r;
+            if(this.x > bgCanvas.width + this.r) this.x = -this.r;
+            if(this.y < -this.r) this.y = bgCanvas.height + this.r;
+            if(this.y > bgCanvas.height + this.r) this.y = -this.r;
+        }
+        draw() {
+            bgCtx.fillStyle = this.color;
+            bgCtx.beginPath();
+            bgCtx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+            bgCtx.fill();
+        }
+    }
+
+    for(let i=0; i<8; i++) blobs.push(new Blob());
+
+    function animBg() {
+        bgCtx.clearRect(0,0,bgCanvas.width, bgCanvas.height);
+        bgCtx.filter = "blur(80px)";
+        blobs.forEach(b => { b.update(); b.draw(); });
+        requestAnimationFrame(animBg);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    animBg();
+
+    /* --- 2. ADVANCED COOKIE CLICKER --- */
+    let cookies = 0;
+    let boost = 1.0;
+    let items = { 1: { c: 15, p: 0.5, n: 0 }, 2: { c: 100, p: 3, n: 0 }, 3: { c: 500, p: 15, n: 0 } };
 
     function clickCookie() {
-        cookies += multiplier;
-        updateDisplay();
+        cookies += (1 * boost);
+        refresh();
     }
 
-    function buyUpgrade(type) {
-        if (type === 'auto' && cookies >= autoCost) {
-            cookies -= autoCost;
-            autoBakers++;
-            autoCost = Math.floor(autoCost * 1.5);
-        } else if (type === 'multi' && cookies >= multiCost) {
-            cookies -= multiCost;
-            multiplier += 1;
-            multiCost = Math.floor(multiCost * 2.2);
+    function buy(id) {
+        if(cookies >= items[id].c) {
+            cookies -= items[id].c;
+            items[id].n++;
+            items[id].c = Math.floor(items[id].c * 1.25);
+            refresh();
         }
-        updateDisplay();
+    }
+
+    function prestige() {
+        if(cookies > 1000) {
+            boost += (cookies / 5000);
+            cookies = 0;
+            Object.keys(items).forEach(k => { items[k].n = 0; });
+            items[1].c = 15; items[2].c = 100; items[3].c = 500;
+            refresh();
+        } else { alert("Need at least 1,000 cookies to prestige!"); }
+    }
+
+    function refresh() {
+        document.getElementById('cookie-count').innerText = Math.floor(cookies).toLocaleString();
+        document.getElementById('boost').innerText = `x${boost.toFixed(1)}`;
+        let cps = 0;
+        Object.keys(items).forEach(id => {
+            document.getElementById(`c-${id}`).innerText = items[id].c;
+            document.getElementById(`up-${id}`).disabled = cookies < items[id].c;
+            cps += items[id].n * items[id].p;
+        });
+        document.getElementById('cps-val').innerText = `CPS: ${(cps * boost).toFixed(1)}`;
     }
 
     setInterval(() => {
-        cookies += autoBakers / 10;
-        updateDisplay();
+        let cps = 0;
+        Object.keys(items).forEach(id => { cps += items[id].n * items[id].p; });
+        cookies += (cps * boost) / 10;
+        refresh();
     }, 100);
 
-    /* --- LIQUID PHYSICS SIMULATION --- */
-    const canvas = document.getElementById('physics-canvas');
-    const ctx = canvas.getContext('2d');
-    let width, height, particles = [];
+    /* --- 3. LIQUID INTERACTION SIM --- */
+    const sCanvas = document.getElementById('sim-canvas');
+    const sCtx = sCanvas.getContext('2d');
+    let drops = [];
 
-    function initCanvas() {
-        width = canvas.width = canvas.offsetWidth;
-        height = canvas.height = canvas.offsetHeight;
-        particles = [];
-        for (let i = 0; i < 80; i++) {
-            particles.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vx: Math.random() * 2 - 1,
-                vy: Math.random() * 2 - 1,
-                radius: Math.random() * 15 + 5
-            });
-        }
+    function resetSim() {
+        drops = [];
+        for(let i=0; i<30; i++) drops.push({x: Math.random()*300, y: Math.random()*280, vx: 0, vy: 0, r: 10+Math.random()*15});
     }
 
-    let mouse = { x: -1000, y: -1000 };
-    canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = e.clientX - rect.left;
-        mouse.y = e.clientY - rect.top;
+    sCanvas.addEventListener('mousemove', (e) => {
+        const rect = sCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        drops.forEach(d => {
+            let diffX = d.x - mx;
+            let diffY = d.y - my;
+            let dist = Math.sqrt(diffX**2 + diffY**2);
+            if(dist < 60) { d.vx += diffX*0.05; d.vy += diffY*0.05; }
+        });
     });
 
-    function draw() {
-        ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = 'rgba(88, 166, 255, 0.4)';
-        ctx.filter = 'blur(10px)';
-
-        particles.forEach(p => {
-            let dx = mouse.x - p.x;
-            let dy = mouse.y - p.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-
-            if (dist < 80) {
-                p.vx -= dx * 0.01;
-                p.vy -= dy * 0.01;
-            }
-
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vx *= 0.98;
-            p.vy *= 0.98;
-
-            // Bounce
-            if (p.x < 0 || p.x > width) p.vx *= -1;
-            if (p.y < 0 || p.y > height) p.vy *= -1;
-
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fill();
+    function drawSim() {
+        sCtx.clearRect(0,0, sCanvas.width, sCanvas.height);
+        sCtx.fillStyle = "#58a6ff";
+        sCtx.filter = "blur(8px)";
+        drops.forEach(d => {
+            d.x += d.vx; d.y += d.vy;
+            d.vx *= 0.95; d.vy *= 0.95;
+            if(d.x < 0 || d.x > sCanvas.width) d.vx *= -1;
+            if(d.y < 0 || d.y > sCanvas.height) d.vy *= -1;
+            sCtx.beginPath(); sCtx.arc(d.x, d.y, d.r, 0, Math.PI*2); sCtx.fill();
         });
-
-        requestAnimationFrame(draw);
+        requestAnimationFrame(drawSim);
     }
-
-    window.addEventListener('resize', initCanvas);
-    initCanvas();
-    draw();
+    resetSim(); drawSim();
 </script>
 
 </body>
