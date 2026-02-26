@@ -5,397 +5,310 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google</title>
     <link rel="icon" type="image/x-icon" href="https://www.google.com/favicon.ico">
-    
     <style>
-        /* --- MAC SPINNING BEACH BALL CURSOR --- */
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif; 
-            cursor: url('https://cdn.custom-cursor.com/db/9753/32/apple-spinning-wait-cursor-pointer.png'), wait !important;
-            user-select: none; /* Prevents ugly text highlighting while dragging */
-        }
-        
-        body, html { 
-            width: 100%; height: 100%; 
-            background: #fff; overflow: hidden; position: relative;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; cursor: url('https://cdn.custom-cursor.com/db/9753/32/apple-spinning-wait-cursor-pointer.png'), wait !important; user-select: none; }
+        body, html { width: 100%; height: 100%; background: #fff; overflow: hidden; position: relative; }
 
         /* --- FAKE GOOGLE BACKGROUND --- */
-        #google-desktop {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center;
-            padding-top: 15vh; z-index: 0;
-        }
-        .g-logo { width: 272px; margin-bottom: 30px; }
-        .g-search-box {
-            width: 100%; max-width: 584px; height: 46px; background: #fff;
-            border: 1px solid #dfe1e5; border-radius: 24px;
-            display: flex; align-items: center; padding: 0 14px; margin-bottom: 28px;
-        }
+        #google-desktop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; z-index: 0; cursor: default; }
+        .g-nav { display: flex; justify-content: flex-end; padding: 15px 20px; gap: 15px; font-size: 13px; align-items: center; }
+        .g-nav a { text-decoration: none; color: #202124; cursor: pointer !important; }
+        .g-app-icon { width: 24px; height: 24px; fill: #5f6368; cursor: pointer !important; }
+        .g-avatar { width: 32px; height: 32px; border-radius: 50%; background: #1a73e8; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer !important; }
+        .g-main { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 8vh; }
+        .g-logo { width: 272px; margin-bottom: 28px; }
+        .g-search-box { width: 100%; max-width: 584px; height: 46px; background: #fff; border: 1px solid #dfe1e5; border-radius: 24px; display: flex; align-items: center; padding: 0 14px; margin-bottom: 28px; }
         .g-search-box:hover { box-shadow: 0 1px 6px rgba(32,33,36,0.28); }
         .g-input { flex: 1; height: 100%; border: none; outline: none; font-size: 16px; margin-left: 10px; cursor: text !important;}
         .g-buttons { display: flex; gap: 12px; justify-content: center; }
-        .g-btn {
-            background: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px;
-            color: #3c4043; font-size: 14px; padding: 0 16px; height: 36px;
-        }
+        .g-btn { background: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px; color: #3c4043; font-size: 14px; padding: 0 16px; height: 36px; cursor: pointer !important; }
+        .g-footer { background: #f2f2f2; color: #70757a; font-size: 14px; width: 100%; position: absolute; bottom: 0; }
+        .g-footer-top { padding: 15px 30px; border-bottom: 1px solid #dadce0; }
+        .g-footer-bottom { display: flex; justify-content: space-between; padding: 15px 20px; }
 
-        /* --- MAC OS LIQUID GLASS DOCK --- */
-        #dock-trigger-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 40px; z-index: 99;
-        }
+        /* --- MAC OS DOCK --- */
+        #dock-trigger-area { position: absolute; bottom: 0; left: 0; width: 100%; height: 20px; z-index: 9999; }
         #dock {
-            position: absolute; bottom: 10px; left: 50%;
-            transform: translate(-50%, 150%);
-            /* Exact Apple Frosted Glass formula */
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(30px) saturate(150%);
-            -webkit-backdrop-filter: blur(30px) saturate(150%);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: absolute; bottom: 10px; left: 50%; transform: translate(-50%, 150%);
+            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(30px) saturate(150%); -webkit-backdrop-filter: blur(30px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255, 255, 255, 0.6);
-            padding: 8px; border-radius: 24px;
-            display: flex; gap: 10px; z-index: 100;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 8px; border-radius: 24px; display: flex; gap: 6px; z-index: 10000; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
         #dock-trigger-area:hover ~ #dock, #dock:hover { transform: translate(-50%, 0); }
-
-        .dock-icon-wrapper {
-            position: relative; display: flex; flex-direction: column; align-items: center;
-        }
-
+        .dock-icon-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; }
         .dock-icon {
-            width: 50px; height: 50px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-            position: relative;
+            width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer !important; background: #eee;
         }
-        
-        /* The Dock Magnification Effect */
-        .dock-icon:hover {
-            transform: scale(1.3) translateY(-10px);
-            z-index: 10;
-        }
-
-        /* Fake Apps for realism */
-        .app-finder { background: linear-gradient(180deg, #f0f4f8 50%, #d9e2ec 50%); border: 1px solid #bcccdc; }
-        .app-safari { background: #fff; border: 2px solid #007aff; border-radius: 50% !important; }
-        .app-chat { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
-
-        .dock-dot {
-            width: 4px; height: 4px; background: rgba(0,0,0,0.4);
-            border-radius: 50%; margin-top: 4px; opacity: 0;
-        }
+        .dock-icon:hover { transform: scale(1.4) translateY(-10px); z-index: 10; }
+        .dock-dot { width: 4px; height: 4px; background: rgba(0,0,0,0.5); border-radius: 50%; margin-top: 4px; opacity: 0; transition: opacity 0.2s; }
         .dock-dot.active { opacity: 1; }
 
-        /* --- DRAGGABLE WINDOW WRAPPER --- */
-        #window-wrapper {
-            position: absolute;
-            top: 100px; left: 100px; /* Starting position */
-            width: 440px; height: 640px; 
-            border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; 
-            /* Deep Mac Window Shadow */
-            box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.1);
-            z-index: 50;
-            
-            /* The Mac "Genie" Animation Effect */
-            transform-origin: bottom center;
-            transition: transform 0.6s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease-out;
-            transform: scale(1);
-            opacity: 1;
+        /* --- WINDOW SYSTEM --- */
+        .mac-window {
+            position: absolute; width: 600px; height: 450px; border-radius: 12px; display: none; flex-direction: column; overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.1); background: #1c1c1e; transform-origin: bottom center;
+            transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.3s ease-out; transform: scale(0.1) translateY(50vh); opacity: 0;
         }
+        .mac-window.open { display: flex; transform: scale(1) translateY(0); opacity: 1; }
+        
+        /* Special wrapper for Chat to contain WebGL */
+        #window-chat { width: 440px; height: 640px; background: transparent; box-shadow: none; border-radius: 20px;}
+        .chat-inner { position: relative; z-index: 2; width: 420px; height: 620px; margin: 10px; background: #1c1c1e; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); }
+        #glcanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; border-radius: 20px; pointer-events: none;}
 
-        #window-wrapper.minimized {
-            /* Sucks it down to the middle of the dock */
-            transform: translateY(calc(100vh - 100px)) scale(0.05);
-            opacity: 0;
-            pointer-events: none;
+        .title-bar {
+            height: 38px; background: #2d2d2d; display: flex; align-items: center; padding: 0 12px; gap: 8px; border-bottom: 1px solid #111; cursor: grab !important; z-index: 10;
         }
+        .title-bar:active { cursor: grabbing !important; }
+        .window-title { flex: 1; text-align: center; color: #999; font-size: 13px; font-weight: 600; margin-left: -40px; pointer-events: none; }
+        
+        .mac-btn { width: 12px; height: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer !important; }
+        .mac-btn::before { content: ''; color: rgba(0,0,0,0.6); font-size: 9px; font-weight: 800; opacity: 0; position: absolute; }
+        .title-bar:hover .mac-btn::before { opacity: 1; }
+        .mac-close { background: #ff5f56; border: .5px solid #e0443e; } .mac-close::before { content: '×'; font-size: 11px; margin-top: -1px; }
+        .mac-min { background: #ffbd2e; border: .5px solid #dea123; } .mac-min::before { content: '−'; font-size: 11px; margin-top: -1px; }
+        .mac-max { background: #27c93f; border: .5px solid #1aab29; } .mac-max::before { content: '+'; font-size: 10px; margin-top: -1px; }
 
-        /* --- WEBGL CANVAS --- */
-        #glcanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .app-content { flex: 1; width: 100%; position: relative; background: #fff; }
+        iframe { width: 100%; height: 100%; border: none; background: #fff; }
+        .iframe-shield { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: none; }
 
-        /* --- CHAT UI + MAC TITLE BAR --- */
-        #chat-container {
-            position: relative; z-index: 2; 
-            width: 420px; height: 620px;
-            background: #1c1c1e; border-radius: 12px;
-            display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
-        }
-
-        #title-bar {
-            height: 38px; background: #2d2d2d;
-            display: flex; align-items: center; padding: 0 12px; gap: 8px;
-            border-bottom: 1px solid #111;
-            cursor: grab !important; 
-        }
-        #title-bar:active { cursor: grabbing !important; }
-
-        /* MAC TRAFFIC LIGHTS WITH HOVER ICONS */
-        .mac-btn { 
-            width: 12px; height: 12px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
-        }
-        .mac-btn::before {
-            content: ''; color: rgba(0,0,0,0.6); font-size: 9px; font-weight: 800;
-            opacity: 0; transition: opacity 0.1s ease; position: absolute;
-            line-height: 12px;
-        }
-        #title-bar:hover .mac-btn::before { opacity: 1; } /* Show icons on bar hover */
-
-        .mac-close { background: #ff5f56; border: .5px solid #e0443e; cursor: pointer !important;}
-        .mac-close:active { background: #bf4942; }
-        .mac-close::before { content: '×'; font-size: 11px; margin-top: -1px; }
-
-        .mac-minimize { background: #ffbd2e; border: .5px solid #dea123; cursor: pointer !important;}
-        .mac-minimize:active { background: #bf8e22; }
-        .mac-minimize::before { content: '−'; font-size: 11px; margin-top: -1px; }
-
-        .mac-maximize { background: #27c93f; border: .5px solid #1aab29; cursor: pointer !important;}
-        .mac-maximize:active { background: #1d9730; }
-        /* Drawing the tiny '+' for the green button using clip-path/background */
-        .mac-maximize::before { 
-            content: '+'; font-size: 10px; margin-top: -1px; color: rgba(0,0,0,0.5);
-        }
-
-        #iframe-shield {
-            position: absolute; top: 38px; left: 0; width: 100%; height: 100%;
-            z-index: 10; display: none;
-        }
-
-        iframe { flex-grow: 1; width: 100%; border: none; background: white; }
+        /* Custom App Styles */
+        .notes-app { width: 100%; height: 100%; padding: 20px; border: none; outline: none; font-size: 16px; resize: none; background: #fdf6e3; color: #333; cursor: text !important;}
+        .terminal-app { background: #000; color: #0f0; padding: 10px; font-family: monospace; height: 100%; overflow: hidden;}
+        .clock-app { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px; font-weight: bold; font-variant-numeric: tabular-nums; background: #111; color: white;}
     </style>
 </head>
 <body>
 
     <div id="google-desktop">
-        <img class="g-logo" src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google">
-        <div class="g-search-box">
-            <svg focusable="false" viewBox="0 0 24 24" style="width:20px; fill:#9aa0a6;"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-            <input type="text" class="g-input" autocomplete="off" autofocus>
+        <div class="g-nav"><a href="#">Gmail</a><a href="#">Images</a><svg class="g-app-icon" viewBox="0 0 24 24"><path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm12 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg><div class="g-avatar">A</div></div>
+        <div class="g-main">
+            <img class="g-logo" src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google">
+            <div class="g-search-box">
+                <svg viewBox="0 0 24 24" style="width:20px; fill:#9aa0a6;"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                <input type="text" class="g-input" autocomplete="off" autofocus>
+            </div>
+            <div class="g-buttons"><button class="g-btn">Google Search</button><button class="g-btn">I'm Feeling Lucky</button></div>
         </div>
-        <div class="g-buttons">
-            <button class="g-btn">Google Search</button>
-            <button class="g-btn">I'm Feeling Lucky</button>
-        </div>
+        <div class="g-footer"><div class="g-footer-top">United States</div></div>
     </div>
 
-    <div id="window-wrapper">
-        <canvas id="glcanvas"></canvas>
-        <div id="chat-container">
-            <div id="title-bar">
-                <div class="mac-btn mac-close" onclick="toggleChat(false)" title="Close"></div>
-                <div class="mac-btn mac-minimize" onclick="toggleChat(false)" title="Minimize"></div>
-                <div class="mac-btn mac-maximize" title="Zoom"></div>
-            </div>
-            <div id="iframe-shield"></div>
-            <iframe src="https://deadsimplechat.com/J4fFLy4Ek" id="chat-frame"></iframe>
-        </div>
-    </div>
+    <div id="windows-container"></div>
 
     <div id="dock-trigger-area"></div>
-    <div id="dock">
-        <div class="dock-icon-wrapper">
-            <div class="dock-icon app-finder">🍏</div>
-            <div class="dock-dot active"></div>
-        </div>
-        <div class="dock-icon-wrapper">
-            <div class="dock-icon app-safari">🧭</div>
-            <div class="dock-dot"></div>
-        </div>
-        <div class="dock-icon-wrapper" onclick="toggleChat(true)">
-            <div class="dock-icon app-chat">💬</div>
-            <div class="dock-dot active"></div>
-        </div>
-    </div>
+    <div id="dock"></div>
 
     <script>
-        // --- WINDOW GENIE MINIMIZE / OPEN LOGIC ---
-        const windowWrapper = document.getElementById('window-wrapper');
-        
-        // Start window centered exactly via JS so drag math is clean
-        window.onload = () => {
-            windowWrapper.style.left = `${(window.innerWidth / 2) - 220}px`;
-            windowWrapper.style.top = `${(window.innerHeight / 2) - 320}px`;
-        };
-        
-        function toggleChat(show) {
-            if (show) {
-                windowWrapper.classList.remove('minimized');
+        // OS DATA: 20 Working Apps
+        const apps = [
+            { id: 'finder', name: 'Finder', icon: '🍏', bg: 'linear-gradient(180deg, #f0f4f8, #d9e2ec)', type: 'iframe', url: 'https://en.wikipedia.org/wiki/Main_Page' }, // Finder acts as browser fallback
+            { id: 'safari', name: 'Safari', icon: '🧭', bg: '#fff', border: '2px solid #007aff', borderRadius: '50%', type: 'iframe', url: 'https://en.wikipedia.org/wiki/Apple_Inc.' },
+            { id: 'chat', name: 'Chat', icon: '💬', bg: 'linear-gradient(135deg, #1e3c72, #2a5298)', type: 'liquid', url: 'https://deadsimplechat.com/J4fFLy4Ek' },
+            { id: 'maps', name: 'Maps', icon: '🗺️', bg: '#e5e5ea', type: 'iframe', url: 'https://www.openstreetmap.org/export/embed.html?bbox=-122.5%2C37.7%2C-122.3%2C37.8&layer=mapnik' },
+            { id: 'spotify', name: 'Music', icon: '🎵', bg: '#1db954', type: 'iframe', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M' },
+            { id: 'youtube', name: 'YouTube', icon: '▶️', bg: '#ff0000', type: 'iframe', url: 'https://www.youtube.com/embed/jfKfPfyJRdk' },
+            { id: 'notes', name: 'Notes', icon: '📝', bg: '#fbf0d9', type: 'custom', html: '<textarea class="notes-app" placeholder="Start typing..."></textarea>' },
+            { id: 'terminal', name: 'Terminal', icon: '💻', bg: '#222', type: 'custom', html: '<div class="terminal-app">> root@macos ~ % <span contenteditable="true" style="outline:none"></span></div>' },
+            { id: 'clock', name: 'Clock', icon: '🕒', bg: '#000', type: 'custom', html: '<div class="clock-app" id="live-clock"></div>' },
+            { id: 'calc', name: 'Calculator', icon: '🧮', bg: '#ff9500', type: 'iframe', url: 'https://www.desmos.com/scientific' },
+            { id: 'weather', name: 'Weather', icon: '☀️', bg: '#4ab2f1', type: 'iframe', url: 'https://wttr.in/SanFrancisco?format=v2' },
+            { id: 'stocks', name: 'Stocks', icon: '📈', bg: '#111', type: 'iframe', url: 'https://s.tradingview.com/widgetembed/?symbol=AAPL' },
+            { id: 'photos', name: 'Photos', icon: '🖼️', bg: '#fff', type: 'iframe', url: 'https://source.unsplash.com/random/600x400' },
+            { id: 'mail', name: 'Mail', icon: '✉️', bg: '#42a5f5', type: 'custom', html: '<div style="padding:20px; font-family:sans-serif"><h3>Inbox</h3><hr/><p><b>Apple:</b> Welcome to macOS</p><p><b>Google:</b> Security Alert</p></div>' },
+            { id: 'calendar', name: 'Calendar', icon: '📅', bg: '#fff', type: 'custom', html: '<div style="padding:40px; text-align:center; font-size:40px; color:red"><b>25</b></div>' },
+            { id: 'reminders', name: 'Reminders', icon: '✅', bg: '#fff', type: 'custom', html: '<ul style="padding:20px 40px; font-size:18px; line-height:2"><li>Buy milk</li><li>Code OS</li><li>Feed dog</li></ul>' },
+            { id: 'settings', name: 'Settings', icon: '⚙️', bg: '#8e8e93', type: 'custom', html: '<div style="padding:20px;"><b>System Preferences</b><br/><br/>Display<br/>Network<br/>Sound</div>' },
+            { id: 'contacts', name: 'Contacts', icon: '📙', bg: '#af52de', type: 'custom', html: '<div style="padding:20px;"><b>All Contacts</b><hr/>Steve Jobs<br/>Tim Cook<br/>Craig Federighi</div>' },
+            { id: 'store', name: 'App Store', icon: '🛍️', bg: '#34c759', type: 'iframe', url: 'https://play.google.com/store/apps' }, // Some framing allowed
+            { id: 'trash', name: 'Trash', icon: '🗑️', bg: '#cfd8dc', type: 'custom', html: '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:#888;">Empty</div>' }
+        ];
+
+        let zIndexCounter = 100;
+
+        // Render Dock
+        const dockEl = document.getElementById('dock');
+        const windowsContainer = document.getElementById('windows-container');
+
+        apps.forEach(app => {
+            // Create Dock Icon
+            const wrapper = document.createElement('div');
+            wrapper.className = 'dock-icon-wrapper';
+            wrapper.onclick = () => openApp(app.id);
+            
+            const icon = document.createElement('div');
+            icon.className = 'dock-icon';
+            icon.innerText = app.icon;
+            icon.style.background = app.bg;
+            if(app.border) icon.style.border = app.border;
+            if(app.borderRadius) icon.style.borderRadius = app.borderRadius;
+            
+            const dot = document.createElement('div');
+            dot.className = 'dock-dot';
+            dot.id = `dot-${app.id}`;
+
+            wrapper.appendChild(icon);
+            wrapper.appendChild(dot);
+            dockEl.appendChild(wrapper);
+
+            // Create Window
+            const win = document.createElement('div');
+            win.className = 'mac-window';
+            win.id = `win-${app.id}`;
+            win.style.left = `${Math.random() * 200 + 100}px`;
+            win.style.top = `${Math.random() * 100 + 50}px`;
+            
+            let contentHTML = '';
+            if (app.type === 'liquid') {
+                win.id = 'window-chat';
+                contentHTML = `
+                    <canvas id="glcanvas"></canvas>
+                    <div class="chat-inner">
+                        <div class="title-bar" onmousedown="startDrag(event, '${win.id}')">
+                            <div class="mac-btn mac-close" onclick="closeApp('${app.id}')"></div>
+                            <div class="mac-btn mac-min" onclick="closeApp('${app.id}')"></div>
+                            <div class="mac-btn mac-max"></div>
+                            <div class="window-title">${app.name}</div>
+                        </div>
+                        <div class="app-content">
+                            <div class="iframe-shield" id="shield-${app.id}"></div>
+                            <iframe src="${app.url}"></iframe>
+                        </div>
+                    </div>`;
             } else {
-                // Before animating, update the transform origin so it shrinks towards the bottom center of the screen
-                const rect = windowWrapper.getBoundingClientRect();
-                const dockX = window.innerWidth / 2;
-                const windowCenterX = rect.left + (rect.width / 2);
-                
-                // Shift transform origin based on where the window is relative to the center dock
-                const originX = 50 + ((dockX - windowCenterX) / window.innerWidth) * 100;
-                windowWrapper.style.transformOrigin = `${originX}% 150%`;
-                
-                windowWrapper.classList.add('minimized');
+                let inner = app.type === 'iframe' ? `<iframe src="${app.url}"></iframe>` : app.html;
+                contentHTML = `
+                    <div class="title-bar" onmousedown="startDrag(event, '${win.id}')">
+                        <div class="mac-btn mac-close" onclick="closeApp('${app.id}')"></div>
+                        <div class="mac-btn mac-min" onclick="closeApp('${app.id}')"></div>
+                        <div class="mac-btn mac-max"></div>
+                        <div class="window-title">${app.name}</div>
+                    </div>
+                    <div class="app-content">
+                        <div class="iframe-shield" id="shield-${app.id}"></div>
+                        ${inner}
+                    </div>`;
             }
-        }
-
-        // --- DRAG LOGIC ---
-        const titleBar = document.getElementById('title-bar');
-        const shield = document.getElementById('iframe-shield');
-        let isDragging = false;
-        let startX, startY, initialLeft, initialTop;
-
-        titleBar.addEventListener('mousedown', (e) => {
-            if(e.target.classList.contains('mac-btn')) return; 
             
-            isDragging = true;
-            shield.style.display = 'block'; 
-            
-            startX = e.clientX;
-            startY = e.clientY;
-            
-            // Get current inline styles or computed styles
-            const rect = windowWrapper.getBoundingClientRect();
-            initialLeft = rect.left;
-            initialTop = rect.top;
-            
-            // Turn off transition during drag so it doesn't rubber-band
-            windowWrapper.style.transition = 'none';
+            win.innerHTML = contentHTML;
+            win.onmousedown = () => bringToFront(win.id);
+            windowsContainer.appendChild(win);
         });
 
+        // App Logic
+        function openApp(id) {
+            const win = document.getElementById(id === 'chat' ? 'window-chat' : `win-${id}`);
+            document.getElementById(`dot-${id}`).classList.add('active');
+            win.classList.add('open');
+            bringToFront(win.id);
+            
+            // Init WebGL if opening chat for first time
+            if(id === 'chat' && !window.glInitialized) initWebGL();
+            if(id === 'clock') updateClock();
+        }
+
+        function closeApp(id) {
+            const win = document.getElementById(id === 'chat' ? 'window-chat' : `win-${id}`);
+            win.classList.remove('open');
+            document.getElementById(`dot-${id}`).classList.remove('active');
+        }
+
+        function bringToFront(winId) {
+            zIndexCounter++;
+            document.getElementById(winId).style.zIndex = zIndexCounter;
+        }
+
+        // Clock Logic
+        function updateClock() {
+            const c = document.getElementById('live-clock');
+            if(!c) return;
+            const now = new Date();
+            c.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            setTimeout(updateClock, 1000);
+        }
+
+        // Drag Logic
+        let draggingWin = null, startX, startY, initX, initY;
+        function startDrag(e, winId) {
+            if(e.target.classList.contains('mac-btn')) return;
+            draggingWin = document.getElementById(winId);
+            bringToFront(winId);
+            
+            // Turn on all shields so iframes don't eat mouse events
+            document.querySelectorAll('.iframe-shield').forEach(s => s.style.display = 'block');
+            
+            startX = e.clientX; startY = e.clientY;
+            initX = draggingWin.offsetLeft; initY = draggingWin.offsetTop;
+            draggingWin.style.transition = 'none';
+        }
+
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            windowWrapper.style.left = `${initialLeft + dx}px`;
-            windowWrapper.style.top = `${initialTop + dy}px`;
+            if (!draggingWin) return;
+            draggingWin.style.left = `${initX + (e.clientX - startX)}px`;
+            draggingWin.style.top = `${initY + (e.clientY - startY)}px`;
         });
 
         document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                shield.style.display = 'none'; 
-                // Turn transition back on for the minimize effect
-                windowWrapper.style.transition = 'transform 0.6s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease-out';
+            if (draggingWin) {
+                draggingWin.style.transition = 'transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.3s ease-out';
+                draggingWin = null;
+                document.querySelectorAll('.iframe-shield').forEach(s => s.style.display = 'none');
             }
         });
 
-        // --- WEBGL LIQUID BORDER LOGIC ---
-        const canvas = document.getElementById('glcanvas');
-        const gl = canvas.getContext('webgl');
-        
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-
-        const vsSource = `
-            attribute vec2 position;
-            void main() { gl_Position = vec4(position, 0.0, 1.0); }
-        `;
-
-        const fsSource = `
-            precision highp float;
-            uniform vec2 u_resolution;
-            uniform float u_time;
-
-            vec2 hash(vec2 p) {
-                p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
-                return -1.0 + 2.0*fract(sin(p)*43758.5453123);
-            }
-
-            float noise(in vec2 p) {
-                const float K1 = 0.366025404;
-                const float K2 = 0.211324865;
-                vec2  i = floor( p + (p.x+p.y)*K1 );
-                vec2  a = p - i + (i.x+i.y)*K2;
-                float m = step(a.y, a.x); 
-                vec2  o = vec2(m, 1.0-m);
-                vec2  b = a - o + K2;
-                vec2  c = a - 1.0 + 2.0*K2;
-                vec3  h = max( 0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
-                vec3  n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
-                return dot( n, vec3(70.0) );
-            }
-
-            float fbm(vec2 uv) {
-                float f = 0.0;
-                uv *= 2.0;
-                f += 0.5000 * noise(uv); uv = 2.0 * uv;
-                f += 0.2500 * noise(uv); uv = 2.0 * uv;
-                f += 0.1250 * noise(uv);
-                return f;
-            }
-
-            void main() {
-                vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-                uv.x *= u_resolution.x / u_resolution.y;
-                
-                vec2 p = uv * 2.0; 
-                float t = u_time * 0.3; 
-                
-                float q = fbm(p - t);
-                vec2 r = vec2(fbm(p + q + t * 0.5), fbm(p - q - t * 0.3));
-                
-                float d = fbm(p + r);
-                float dx = fbm(p + r + vec2(0.02, 0.0)) - d;
-                float dy = fbm(p + r + vec2(0.0, 0.02)) - d;
-                vec3 normal = normalize(vec3(dx * 8.0, dy * 8.0, 1.0));
-
-                vec3 rainbow = 0.5 + 0.5 * cos(u_time * 0.8 + normal.xyx * 6.0 + vec3(0.0, 2.0, 4.0));
-                
-                vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
-                float specular = pow(max(dot(normal, lightDir), 0.0), 30.0) * 1.5;
-
-                vec3 finalColor = rainbow * 0.85 + vec3(specular);
-
-                gl_FragColor = vec4(finalColor, 1.0);
-            }
-        `;
-
-        function compileShader(type, source) {
-            const shader = gl.createShader(type);
-            gl.shaderSource(shader, source);
-            gl.compileShader(shader);
-            return shader;
-        }
-
-        const program = gl.createProgram();
-        gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vsSource));
-        gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fsSource));
-        gl.linkProgram(program);
-        gl.useProgram(program);
-
-        const vertices = new Float32Array([-1,-1, 1,-1, -1,1, 1,1]);
-        const buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-        const position = gl.getAttribLocation(program, "position");
-        gl.enableVertexAttribArray(position);
-        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-
-        const timeLoc = gl.getUniformLocation(program, "u_time");
-        const resLoc = gl.getUniformLocation(program, "u_resolution");
-
-        let startTime = Date.now();
-        function render() {
-            gl.uniform2f(resLoc, canvas.width, canvas.height);
-            gl.uniform1f(timeLoc, (Date.now() - startTime) / 1000.0);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(render);
-        }
-        render();
-
-        window.addEventListener('resize', () => {
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
+        // WEBL LIQUID BORDER FOR CHAT
+        function initWebGL() {
+            window.glInitialized = true;
+            const canvas = document.getElementById('glcanvas');
+            const gl = canvas.getContext('webgl');
+            canvas.width = 440; canvas.height = 640;
             gl.viewport(0, 0, canvas.width, canvas.height);
-        });
+
+            const vsSource = `attribute vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }`;
+            const fsSource = `
+                precision highp float; uniform vec2 u_resolution; uniform float u_time;
+                vec2 hash(vec2 p) { p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3))); return -1.0 + 2.0*fract(sin(p)*43758.5453123); }
+                float noise(in vec2 p) {
+                    const float K1 = 0.366025404; const float K2 = 0.211324865;
+                    vec2 i = floor( p + (p.x+p.y)*K1 ); vec2 a = p - i + (i.x+i.y)*K2; float m = step(a.y, a.x); 
+                    vec2 o = vec2(m, 1.0-m); vec2 b = a - o + K2; vec2 c = a - 1.0 + 2.0*K2;
+                    vec3 h = max( 0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+                    vec3 n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+                    return dot( n, vec3(70.0) );
+                }
+                float fbm(vec2 uv) { float f = 0.0; uv *= 2.0; f += 0.5000 * noise(uv); uv = 2.0 * uv; f += 0.2500 * noise(uv); uv = 2.0 * uv; f += 0.1250 * noise(uv); return f; }
+                void main() {
+                    vec2 uv = gl_FragCoord.xy / u_resolution.xy; uv.x *= u_resolution.x / u_resolution.y;
+                    vec2 p = uv * 2.0; float t = u_time * 0.3; 
+                    float q = fbm(p - t); vec2 r = vec2(fbm(p + q + t * 0.5), fbm(p - q - t * 0.3));
+                    float d = fbm(p + r); float dx = fbm(p + r + vec2(0.02, 0.0)) - d; float dy = fbm(p + r + vec2(0.0, 0.02)) - d;
+                    vec3 normal = normalize(vec3(dx * 8.0, dy * 8.0, 1.0));
+                    vec3 rainbow = 0.5 + 0.5 * cos(u_time * 0.8 + normal.xyx * 6.0 + vec3(0.0, 2.0, 4.0));
+                    vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0)); float specular = pow(max(dot(normal, lightDir), 0.0), 30.0) * 1.5;
+                    gl_FragColor = vec4(rainbow * 0.85 + vec3(specular), 1.0);
+                }
+            `;
+            function compileShader(type, source) {
+                const shader = gl.createShader(type); gl.shaderSource(shader, source); gl.compileShader(shader); return shader;
+            }
+            const program = gl.createProgram();
+            gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vsSource)); gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fsSource));
+            gl.linkProgram(program); gl.useProgram(program);
+
+            const vertices = new Float32Array([-1,-1, 1,-1, -1,1, 1,1]);
+            const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer); gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+            const position = gl.getAttribLocation(program, "position"); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+            const timeLoc = gl.getUniformLocation(program, "u_time"); const resLoc = gl.getUniformLocation(program, "u_resolution");
+            let startTime = Date.now();
+            function render() {
+                gl.uniform2f(resLoc, canvas.width, canvas.height); gl.uniform1f(timeLoc, (Date.now() - startTime) / 1000.0);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); requestAnimationFrame(render);
+            }
+            render();
+        }
     </script>
 </body>
 </html>
