@@ -3,535 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>macOS Tahoe Ultimate Edition</title>
-    
+    <title>macOS Tahoe - Ultimate Developer Edition</title>
     <style>
         /* ==========================================================================
-           1. CORE ENGINE VARIABLES & THEMES
+           1. KERNEL SYSTEM THEMING
            ========================================================================== */
         :root {
-            --apple-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-            --glass: rgba(255, 255, 255, 0.2);
-            --glass-thick: rgba(255, 255, 255, 0.4);
-            --glass-dark: rgba(20, 20, 20, 0.5);
-            --blur: blur(45px) saturate(210%) brightness(110%);
-            --menu-height: 32px;
-            --dock-height: 85px;
-            --radius-lg: 24px;
-            --radius-md: 14px;
-            --shadow-win: 0 50px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.2) inset;
+            --sf-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            --glass: rgba(255, 255, 255, 0.22);
+            --glass-thick: rgba(255, 255, 255, 0.5);
+            --glass-dark: rgba(15, 15, 15, 0.75);
+            --blur: blur(60px) saturate(220%) brightness(1.1);
+            --menu-h: 30px;
+            --dock-h: 82px;
+            --win-rad: 14px;
+            --accent: #007aff;
+            --shadow: 0 50px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.2) inset;
         }
 
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: var(--apple-font);
-            cursor: url('https://cdn.custom-cursor.com/db/9753/32/apple-spinning-wait-cursor-pointer.png'), auto !important;
-            user-select: none; -webkit-font-smoothing: antialiased;
-        }
-
-        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #000; position: relative; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--sf-font); -webkit-font-smoothing: antialiased; }
+        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #000; }
 
         /* ==========================================================================
-           2. LIVE TAHOE WALLPAPER (100% COVER)
+           2. 4K LIVE TAHOE WALLPAPER ENGINE
            ========================================================================== */
-        #wallpaper-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+        #wallpaper-engine { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #wallpaper-engine iframe {
+            width: 140vw; height: 140vh; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); pointer-events: none;
         }
-        #wallpaper-container iframe {
-            width: 100vw; height: 100vh; transform: scale(1.4); /* Zoom to hide UI/Black bars */
-            pointer-events: none;
-        }
-        #desktop-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
-            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.2) 100%);
-            pointer-events: none;
-        }
+        #desktop-overlay { position: absolute; inset: 0; z-index: 2; background: linear-gradient(rgba(0,0,0,0.2), transparent 20%); pointer-events: none; }
 
         /* ==========================================================================
-           3. TOP MENU BAR (FROSTED GLASS)
+           3. UI CORE COMPONENTS
            ========================================================================== */
         #menu-bar {
-            position: absolute; top: 0; left: 0; width: 100%; height: var(--menu-height);
-            background: rgba(255, 255, 255, 0.15); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border-bottom: 0.5px solid rgba(255,255,255,0.2);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 18px; color: #fff; font-size: 13.5px; font-weight: 500; z-index: 1000000;
+            position: absolute; top: 0; width: 100%; height: var(--menu-h);
+            background: rgba(255,255,255,0.12); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            border-bottom: 0.5px solid rgba(255,255,255,0.2); display: flex; justify-content: space-between;
+            align-items: center; padding: 0 15px; color: #fff; font-size: 13px; font-weight: 500; z-index: 1000000;
         }
-        .menu-left, .menu-right { display: flex; align-items: center; gap: 15px; }
-        .menu-item { cursor: default !important; }
-        .menu-item.bold { font-weight: 700; font-size: 14px; }
-        .apple-icon { font-size: 18px; }
+
+        .dock-container { position: absolute; bottom: 12px; width: 100%; display: flex; justify-content: center; z-index: 1000000; }
+        .dock {
+            width: 96%; max-width: 1300px; height: var(--dock-h); background: var(--glass);
+            backdrop-filter: var(--blur); border: 1px solid var(--glass-thick); border-radius: 26px;
+            display: flex; align-items: flex-end; padding: 8px 18px; gap: 10px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+
+        .dock-item { position: relative; width: 56px; height: 56px; transition: all 0.2s cubic-bezier(0.2, 1, 0.3, 1); }
+        .dock-item svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); cursor: pointer; }
+        .dock-item:hover { transform: scale(1.4) translateY(-14px); margin: 0 12px; }
+        .active-dot { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #fff; border-radius: 50%; opacity: 0; }
+        .active-dot.on { opacity: 1; }
 
         /* ==========================================================================
-           4. ULTRA-WIDE DOCK
+           4. DYNAMIC WINDOWING SYSTEM
            ========================================================================== */
-        #dock-outer {
-            position: absolute; bottom: 12px; left: 0; width: 100%;
-            display: flex; justify-content: center; z-index: 1000000;
-        }
-        #dock {
-            width: 90%; max-width: 1400px; height: var(--dock-height);
-            background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border: 1px solid var(--glass-thick); border-radius: var(--radius-lg);
-            padding: 10px 20px; display: flex; align-items: flex-end; gap: 10px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            transition: width 0.3s ease;
-        }
-        .dock-item {
-            position: relative; width: 58px; height: 58px; transition: all 0.1s ease;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .dock-icon {
-            width: 100%; height: 100%; border-radius: 14px;
-            background-size: cover; background-position: center;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2); cursor: pointer !important;
-            transition: filter 0.2s;
-        }
-        .dock-item:hover .dock-icon { transform: scale(1.4) translateY(-15px); }
-        .dock-dot {
-            position: absolute; bottom: -10px; width: 4px; height: 4px; 
-            background: #fff; border-radius: 50%; opacity: 0; transition: opacity 0.3s;
-        }
-        .dock-dot.active { opacity: 1; }
-        
-        /* Tooltip */
-        .dock-item .tooltip {
-            position: absolute; top: -50px; background: rgba(0,0,0,0.7); color: #fff;
-            padding: 5px 12px; border-radius: 8px; font-size: 12px; opacity: 0;
-            pointer-events: none; transition: 0.2s;
-        }
-        .dock-item:hover .tooltip { opacity: 1; transform: translateY(-5px); }
-
-        /* ==========================================================================
-           5. WINDOW SYSTEM
-           ========================================================================== */
-        #window-layer {
-            position: absolute; top: var(--menu-height); left: 0; 
-            width: 100%; height: calc(100% - var(--menu-height)); z-index: 10;
-        }
+        #win-space { position: absolute; top: var(--menu-h); width: 100%; height: calc(100% - var(--menu-h)); z-index: 10; }
         .window {
-            position: absolute; width: 800px; height: 550px; border-radius: var(--radius-md);
-            background: rgba(245, 245, 247, 0.88); backdrop-filter: var(--blur);
-            box-shadow: var(--shadow-win); display: none; flex-direction: column;
-            overflow: hidden; opacity: 0; transform: scale(0.9) translateY(30px);
-            transition: opacity 0.3s cubic-bezier(0.2, 1, 0.3, 1), transform 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+            position: absolute; width: 800px; height: 550px; border-radius: var(--win-rad);
+            background: rgba(245,245,247,0.88); backdrop-filter: var(--blur); box-shadow: var(--shadow);
+            display: none; flex-direction: column; overflow: hidden; transform: scale(0.92); opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.3s ease;
         }
-        .window.active { display: flex; opacity: 1; transform: scale(1) translateY(0); }
+        .window.show { display: flex; transform: scale(1); opacity: 1; }
         .window.dark { background: var(--glass-dark); color: #fff; }
 
-        /* Special Chat Window */
-        .window.chat-app { background: transparent; backdrop-filter: none; box-shadow: none; border: none; }
-        .chat-container {
-            position: relative; width: 100%; height: 100%; border-radius: var(--radius-md);
-            overflow: hidden; box-shadow: var(--shadow-win);
-        }
-        #chat-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .chat-ui-wrap { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; background: rgba(0,0,0,0.4); }
-
-        /* Title Bar */
-        .title-bar {
-            height: 42px; display: flex; align-items: center; padding: 0 15px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
-            border-bottom: 0.5px solid rgba(0,0,0,0.1); cursor: grab !important;
-        }
-        .title-bar:active { cursor: grabbing !important; }
-        .controls { display: flex; gap: 8px; margin-right: 20px; }
-        .btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer !important; }
+        .title-bar { height: 42px; display: flex; align-items: center; padding: 0 14px; cursor: grab; background: linear-gradient(rgba(255,255,255,0.4), transparent); }
+        .title-bar:active { cursor: grabbing; }
+        .traffic-lights { display: flex; gap: 8px; width: 60px; }
+        .light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.1); }
         .close { background: #ff5f57; } .min { background: #febc2e; } .max { background: #28c840; }
-        .win-title { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: #333; margin-left: -50px; }
-        .dark .win-title { color: #ccc; }
+        .win-title { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: #333; margin-left: -60px; }
+        .dark .win-title { color: #fff; }
 
-        .content { flex: 1; position: relative; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; background: #fff; }
+        .content { flex: 1; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; }
         .shield { position: absolute; inset: 0; z-index: 1000; display: none; }
 
         /* ==========================================================================
-           6. INTERNAL APPS (TIC TAC TOE BOT, CALC, TERMINAL)
+           5. BUILT-IN APPLICATIONS
            ========================================================================== */
-        .ttt-app { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #111; }
-        .ttt-board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 5px; }
-        .ttt-cell { background: #222; display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: bold; color: #fff; cursor: pointer !important; }
-        .ttt-cell:hover { background: #333; }
+        /* Calculator */
+        .app-calc { display: flex; flex-direction: column; height: 100%; background: #1c1c1e; }
+        .calc-display { height: 100px; color: #fff; font-size: 48px; display: flex; align-items: flex-end; justify-content: flex-end; padding: 10px 20px; font-weight: 300; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex: 1; gap: 1px; background: #333; }
+        .calc-btn { background: #636366; color: white; border: none; font-size: 20px; cursor: pointer; }
+        .calc-btn.op { background: #ff9f0a; }
 
-        .calc-app { display: grid; grid-template-columns: repeat(4, 1fr); height: 100%; background: #333; }
-        .calc-res { grid-column: span 4; background: #222; color: #fff; font-size: 50px; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; }
-        .calc-btn { background: #555; color: #fff; border: 0.5px solid #333; font-size: 20px; display: flex; align-items: center; justify-content: center; }
-        .calc-btn.op { background: #f39c12; }
+        /* Terminal */
+        .app-term { background: #000; color: #00ff00; padding: 15px; font-family: monospace; height: 100%; font-size: 14px; overflow-y: auto; }
 
-        .term-app { background: #000; color: #0f0; padding: 15px; font-family: monospace; height: 100%; overflow-y: auto; }
+        /* TicTacToe */
+        .ttt-container { height: 100%; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ttt-grid { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; }
+        .ttt-cell { width: 100px; height: 100px; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; color: #fff; cursor: pointer; }
+
+        /* System Monitor */
+        .sys-wrap { padding: 30px; color: #fff; }
+        .sys-bar { height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin: 15px 0; }
+        .sys-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s ease; }
     </style>
 </head>
 <body>
 
-    <div id="wallpaper-container">
-        <iframe src="https://www.youtube.com/embed/6sY5jQZdzAY?autoplay=1&mute=1&loop=1&playlist=6sY5jQZdzAY&controls=0&modestbranding=1&rel=0&iv_load_policy=3" frameborder="0"></iframe>
+    <div id="wallpaper-engine">
+        <iframe src="https://www.youtube.com/embed/KT5zTS_BEjQ?autoplay=1&mute=1&loop=1&playlist=KT5zTS_BEjQ&controls=0&modestbranding=1&iv_load_policy=3&enablejsapi=1" frameborder="0"></iframe>
     </div>
     <div id="desktop-overlay"></div>
 
     <div id="menu-bar">
-        <div class="menu-left">
-            <span class="menu-item apple-icon"></span>
-            <span class="menu-item bold" id="active-app">Finder</span>
-            <span class="menu-item">File</span>
-            <span class="menu-item">Edit</span>
-            <span class="menu-item">View</span>
-            <span class="menu-item">Go</span>
+        <div style="display:flex; gap:18px; align-items:center;">
+            <span style="font-size:18px;"></span>
+            <span id="active-app-name" style="font-weight:700;">Finder</span>
+            <span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span>
         </div>
-        <div class="menu-right">
-            <span class="menu-item">🔋 100%</span>
-            <span class="menu-item">📶</span>
-            <span class="menu-item" id="clock">Mon 9:41 AM</span>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <span>🔋 100%</span>
+            <span>📶</span>
+            <span id="clock">Wed Feb 25 7:33 PM</span>
         </div>
     </div>
 
-    <div id="window-layer"></div>
+    <div id="win-space"></div>
 
-    <div id="dock-outer">
-        <div id="dock"></div>
+    <div class="dock-container">
+        <div class="dock" id="dock"></div>
     </div>
 
     <script>
         /**
          * =========================================
-         * OS CORE CONFIGURATION
+         * SVG ICON ASSETS (Hard-coded for 100% Load)
          * =========================================
          */
-        const APPS = [
-            { id: 'finder', name: 'Finder', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/finder.png', type: 'iframe', url: 'https://en.wikipedia.org/wiki/MacOS' },
-            { id: 'safari', name: 'Safari', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/safari.png', type: 'iframe', url: 'https://www.google.com/search?igu=1' },
-            { id: 'chat', name: 'Liquid Chat', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/imessage.png', type: 'chat', url: 'https://deadsimplechat.com/J4fFLy4Ek' },
-            { id: 'maps', name: 'Maps', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/maps.png', type: 'iframe', url: 'https://www.openstreetmap.org/export/embed.html?bbox=-120.2,38.9,-120.0,39.1&layer=mapnik' },
-            { id: 'spotify', name: 'Music', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/music.png', type: 'iframe', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM3M' },
-            { id: 'ttt', name: 'TicTacToe AI', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/game-center.png', type: 'ttt' },
-            { id: 'calc', name: 'Calculator', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/calculator.png', type: 'calc' },
-            { id: 'terminal', name: 'Terminal', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/terminal.png', type: 'terminal' },
-            { id: 'notes', name: 'Notes', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/notes.png', type: 'notes' },
-            { id: 'weather', name: 'Weather', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/weather.png', type: 'iframe', url: 'https://wttr.in/' },
-            { id: 'store', name: 'App Store', icon: 'https://raw.githubusercontent.com/yannick-atty/macOS-Icons/main/icons/app-store.png', type: 'iframe', url: 'https://www.apple.com/app-store/' }
+        const ICONS = {
+            finder: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#E6F2FF"/><path d="M0 22C0 9 9 0 22 0h28v100H22C9 100 0 91 0 78V22z" fill="#007AFF"/><path d="M30 40c0-4 4-8 8-8s8 4 8 8-4 8-8 8-8-4-8-8zm32 0c0-4 4-8 8-8s8 4 8 8-4 8-8 8-8-4-8-8z" fill="#fff"/><path d="M46 65c5 10 15 10 15 0" stroke="#fff" stroke-width="4" fill="none"/></svg>`,
+            safari: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff"/><circle cx="50" cy="50" r="42" fill="#007AFF"/><path d="M42 42l-10 25 25-10 10-25-25 10z" fill="#FF3B30"/><path d="M58 58l-25 10 10-25 25-10-10 25z" fill="#fff"/></svg>`,
+            chat: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#34C759"/><path d="M75 50c0 13-11 24-25 24-4 0-8-1-11-3L20 78l4-16c-3-4-4-8-4-12 0-13 11-24 25-24s25 11 25 24z" fill="#fff"/></svg>`,
+            calc: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF9500"/><circle cx="30" cy="50" r="5" fill="#fff"/><circle cx="50" cy="50" r="5" fill="#fff"/><circle cx="70" cy="50" r="5" fill="#fff"/></svg>`,
+            term: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#1C1C1E"/><path d="M25 35l15 15-15 15" fill="none" stroke="#34C759" stroke-width="6" stroke-linecap="round"/></svg>`,
+            ttt: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#5856D6"/><path d="M35 25v50M65 25v50M25 40h50M25 60h50" stroke="#fff" stroke-width="4"/></svg>`,
+            sys: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF2D55"/><path d="M20 70l20-40 20 30 20-50" stroke="#fff" stroke-width="5" fill="none"/></svg>`
+        };
+
+        const APP_DATA = [
+            { id: 'finder', name: 'Finder', icon: ICONS.finder, type: 'iframe', url: 'https://en.wikipedia.org/wiki/MacOS' },
+            { id: 'safari', name: 'Safari', icon: ICONS.safari, type: 'iframe', url: 'https://www.bing.com' },
+            { id: 'chat', name: 'Liquid Chat', icon: ICONS.chat, type: 'chat', url: 'https://deadsimplechat.com/J4fFLy4Ek' },
+            { id: 'calc', name: 'Calculator', icon: ICONS.calc, type: 'app_calc' },
+            { id: 'term', name: 'Terminal', icon: ICONS.term, type: 'app_term' },
+            { id: 'ttt', name: 'TicTacToe AI', icon: ICONS.ttt, type: 'app_ttt' },
+            { id: 'sys', name: 'System Monitor', icon: ICONS.sys, type: 'app_sys' }
         ];
 
-        let zIndex = 100;
-
         /**
          * =========================================
-         * SYSTEM INITIALIZATION
+         * KERNEL OBJECT-ORIENTED ENGINE
          * =========================================
          */
-        const dock = document.getElementById('dock');
-        const winLayer = document.getElementById('window-layer');
+        class TahoeOS {
+            constructor() {
+                this.dock = document.getElementById('dock');
+                this.space = document.getElementById('win-space');
+                this.zIndex = 1000;
+                this.windows = {};
+                this.init();
+            }
 
-        // Clock
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }, 1000);
+            init() {
+                // Initialize Clock
+                setInterval(() => {
+                    const now = new Date();
+                    document.getElementById('clock').innerText = now.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+                }, 1000);
 
-        // Build Dock
-        APPS.forEach(app => {
-            const item = document.createElement('div');
-            item.className = 'dock-item';
-            item.innerHTML = `
-                <div class="tooltip">${app.name}</div>
-                <div class="dock-icon" style="background-image: url('${app.icon}')" onclick="openWindow('${app.id}')"></div>
-                <div class="dock-dot" id="dot-${app.id}"></div>
-            `;
-            dock.appendChild(item);
-        });
+                // Initialize Dock
+                APP_DATA.forEach(app => {
+                    const el = document.createElement('div');
+                    el.className = 'dock-item';
+                    el.innerHTML = `${app.icon}<div class="active-dot" id="dot-${app.id}"></div>`;
+                    el.onclick = () => this.launch(app.id);
+                    this.dock.appendChild(el);
+                });
 
-        /**
-         * =========================================
-         * WINDOW MANAGER ENGINE
-         * =========================================
-         */
-        function openWindow(id) {
-            const app = APPS.find(a => a.id === id);
-            let win = document.getElementById(`win-${id}`);
+                this.launch('chat'); // Auto-launch your chat
+            }
 
-            if (!win) {
-                win = document.createElement('div');
+            launch(id) {
+                const app = APP_DATA.find(a => a.id === id);
+                if (this.windows[id]) {
+                    this.focus(id);
+                    return;
+                }
+
+                const win = document.createElement('div');
                 win.id = `win-${id}`;
-                win.className = `window ${app.type === 'chat' ? 'chat-app' : ''} ${app.id === 'terminal' ? 'dark' : ''}`;
-                win.style.left = '150px'; win.style.top = '100px';
+                win.className = `window ${id === 'calc' || id === 'term' || id === 'sys' ? 'dark' : ''}`;
+                win.style.left = `${150 + (Object.keys(this.windows).length * 30)}px`;
+                win.style.top = `${80 + (Object.keys(this.windows).length * 30)}px`;
                 
-                let body = '';
-                if (app.type === 'chat') {
-                    body = `
-                        <div class="chat-container">
-                            <canvas id="chat-canvas"></canvas>
-                            <div class="chat-ui-wrap">
-                                <div class="title-bar dark" onmousedown="dragStart(event, 'win-${id}')">
-                                    <div class="controls">
-                                        <div class="btn close" onclick="closeWin('${id}')"></div>
-                                        <div class="btn min" onclick="closeWin('${id}')"></div>
-                                        <div class="btn max"></div>
-                                    </div>
-                                    <div class="win-title">${app.name}</div>
-                                </div>
-                                <div class="content"><iframe src="${app.url}"></iframe><div class="shield"></div></div>
-                            </div>
-                        </div>`;
-                } else if (app.type === 'iframe') {
-                    body = `
-                        <div class="title-bar" onmousedown="dragStart(event, 'win-${id}')">
-                            <div class="controls">
-                                <div class="btn close" onclick="closeWin('${id}')"></div>
-                                <div class="btn min" onclick="closeWin('${id}')"></div>
-                                <div class="btn max"></div>
-                            </div>
-                            <div class="win-title">${app.name}</div>
+                win.innerHTML = `
+                    <div class="title-bar" onmousedown="os.dragStart(event, '${id}')">
+                        <div class="traffic-lights">
+                            <div class="light close" onclick="os.terminate('${id}')"></div>
+                            <div class="light min" onclick="os.hide('${id}')"></div>
+                            <div class="light max"></div>
                         </div>
-                        <div class="content"><iframe src="${app.url}"></iframe><div class="shield"></div></div>`;
-                } else {
-                    body = `
-                        <div class="title-bar" onmousedown="dragStart(event, 'win-${id}')">
-                            <div class="controls">
-                                <div class="btn close" onclick="closeWin('${id}')"></div>
-                                <div class="btn min" onclick="closeWin('${id}')"></div>
-                                <div class="btn max"></div>
-                            </div>
-                            <div class="win-title">${app.name}</div>
-                        </div>
-                        <div class="content" id="content-${id}"></div>`;
-                }
+                        <div class="win-title">${app.name}</div>
+                    </div>
+                    <div class="content">
+                        <div class="shield"></div>
+                        ${this.renderApp(app)}
+                    </div>
+                `;
+
+                this.space.appendChild(win);
+                this.windows[id] = win;
+                document.getElementById(`dot-${id}`).classList.add('on');
                 
-                win.innerHTML = body;
-                winLayer.appendChild(win);
-                
-                // App Specific Init
-                if (app.type === 'chat') initLiquid('chat-canvas');
-                if (app.type === 'ttt') initTTT(`content-${id}`);
-                if (app.type === 'calc') initCalc(`content-${id}`);
-                if (app.type === 'terminal') initTerm(`content-${id}`);
+                setTimeout(() => {
+                    win.classList.add('show');
+                    this.focus(id);
+                    this.initLogic(id);
+                }, 10);
             }
 
-            win.style.display = 'flex';
-            setTimeout(() => win.classList.add('active'), 10);
-            document.getElementById(`dot-${id}`).classList.add('active');
-            focusWin(id);
-        }
-
-        function closeWin(id) {
-            const win = document.getElementById(`win-${id}`);
-            win.classList.remove('active');
-            document.getElementById(`dot-${id}`).classList.remove('active');
-            setTimeout(() => win.style.display = 'none', 300);
-        }
-
-        function focusWin(id) {
-            zIndex++;
-            const win = document.getElementById(`win-${id}`);
-            win.style.zIndex = zIndex;
-            document.getElementById('active-app').innerText = APPS.find(a => a.id === id).name;
-        }
-
-        // Draggable Logic
-        let dragEl = null, offX, offY;
-        function dragStart(e, id) {
-            dragEl = document.getElementById(id);
-            focusWin(id.split('-')[1]);
-            offX = e.clientX - dragEl.offsetLeft;
-            offY = e.clientY - dragEl.offsetTop;
-            document.querySelectorAll('.shield').forEach(s => s.style.display = 'block');
-        }
-
-        document.addEventListener('mousemove', e => {
-            if (!dragEl) return;
-            dragEl.style.left = (e.clientX - offX) + 'px';
-            dragEl.style.top = (e.clientY - offY) + 'px';
-        });
-
-        document.addEventListener('mouseup', () => {
-            dragEl = null;
-            document.querySelectorAll('.shield').forEach(s => s.style.display = 'none');
-        });
-
-        /**
-         * =========================================
-         * APP: TIC TAC TOE (IMPOSSIBLE AI)
-         * =========================================
-         */
-        function initTTT(containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<div class="ttt-app"><div class="ttt-board" id="ttt-board"></div><h2 id="ttt-status" style="color:white;margin-top:20px">Your Turn (X)</h2></div>`;
-            const board = document.getElementById('ttt-board');
-            let state = Array(9).fill(null);
-            
-            for(let i=0; i<9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'ttt-cell';
-                cell.onclick = () => playerMove(i);
-                board.appendChild(cell);
+            renderApp(app) {
+                if (app.type === 'iframe' || app.type === 'chat') return `<iframe src="${app.url}"></iframe>`;
+                if (app.type === 'app_calc') return `<div class="app-calc"><div class="calc-display" id="c-res">0</div><div class="calc-grid"><button class="calc-btn">7</button><button class="calc-btn">8</button><button class="calc-btn">9</button><button class="calc-btn op">÷</button><button class="calc-btn">4</button><button class="calc-btn">5</button><button class="calc-btn">6</button><button class="calc-btn op">×</button><button class="calc-btn">1</button><button class="calc-btn">2</button><button class="calc-btn">3</button><button class="calc-btn op">+</button><button class="calc-btn" style="grid-column: span 2">0</button><button class="calc-btn">.</button><button class="calc-btn op">=</button></div></div>`;
+                if (app.type === 'app_term') return `<div class="app-term">Tahoe Kernel v4.0.0-release<br/>root@tahoe-mac ~ % <span id="t-in" contenteditable="true" style="outline:none"></span></div>`;
+                if (app.type === 'app_ttt') return `<div class="ttt-container"><h2 id="ttt-h" style="color:#fff;margin-bottom:20px;">Your Turn</h2><div class="ttt-grid" id="ttt-g"></div></div>`;
+                if (app.type === 'app_sys') return `<div class="sys-wrap"><h3>Processor Activity</h3><div class="sys-bar"><div class="sys-fill" id="cpu-f"></div></div><h3>Memory Usage</h3><div class="sys-bar"><div class="sys-fill" id="ram-f"></div></div></div>`;
             }
 
-            function playerMove(i) {
-                if(state[i] || checkWin(state)) return;
-                state[i] = 'X';
-                updateBoard();
-                if(!checkWin(state)) setTimeout(botMove, 500);
-            }
-
-            function botMove() {
-                let bestScore = -Infinity;
-                let move;
-                for(let i=0; i<9; i++) {
-                    if(!state[i]) {
-                        state[i] = 'O';
-                        let score = minimax(state, 0, false);
-                        state[i] = null;
-                        if(score > bestScore) { bestScore = score; move = i; }
-                    }
+            initLogic(id) {
+                if (id === 'sys') {
+                    setInterval(() => {
+                        document.getElementById('cpu-f').style.width = `${Math.random() * 100}%`;
+                        document.getElementById('ram-f').style.width = `${50 + Math.random() * 20}%`;
+                    }, 1000);
                 }
-                state[move] = 'O';
-                updateBoard();
+                if (id === 'ttt') this.initTTT();
+                if (id === 'calc') this.initCalc();
             }
 
-            function minimax(board, depth, isMaximizing) {
-                let res = checkWin(board);
-                if(res === 'O') return 10;
-                if(res === 'X') return -10;
-                if(res === 'tie') return 0;
-
-                if(isMaximizing) {
-                    let best = -Infinity;
-                    for(let i=0; i<9; i++) {
-                        if(!board[i]) { board[i] = 'O'; best = Math.max(best, minimax(board, depth+1, false)); board[i] = null; }
-                    }
-                    return best;
-                } else {
-                    let best = Infinity;
-                    for(let i=0; i<9; i++) {
-                        if(!board[i]) { board[i] = 'X'; best = Math.min(best, minimax(board, depth+1, true)); board[i] = null; }
-                    }
-                    return best;
-                }
+            initCalc() {
+                const res = document.getElementById('c-res');
+                let cur = '';
+                document.querySelectorAll('.calc-btn').forEach(b => {
+                    b.onclick = () => {
+                        const v = b.innerText;
+                        if (v === '=') { try { cur = eval(cur.replace('×', '*').replace('÷', '/')).toString(); } catch { cur = 'Error'; } }
+                        else { cur += v; }
+                        res.innerText = cur || '0';
+                    };
+                });
             }
 
-            function checkWin(b) {
-                const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-                for(let w of wins) {
-                    if(b[w[0]] && b[w[0]] === b[w[1]] && b[w[0]] === b[w[2]]) return b[w[0]];
-                }
-                return b.includes(null) ? null : 'tie';
-            }
-
-            function updateBoard() {
-                const cells = board.children;
-                for(let i=0; i<9; i++) cells[i].innerText = state[i];
-                let res = checkWin(state);
-                if(res) document.getElementById('ttt-status').innerText = res === 'tie' ? "Draw!" : `${res} Wins!`;
-            }
-        }
-
-        /**
-         * =========================================
-         * APP: CALCULATOR
-         * =========================================
-         */
-        function initCalc(containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<div class="calc-app"><div class="calc-res" id="calc-res">0</div>
-                <div class="calc-btn">C</div><div class="calc-btn">+/-</div><div class="calc-btn">%</div><div class="calc-btn op">/</div>
-                <div class="calc-btn">7</div><div class="calc-btn">8</div><div class="calc-btn">9</div><div class="calc-btn op">*</div>
-                <div class="calc-btn">4</div><div class="calc-btn">5</div><div class="calc-btn">6</div><div class="calc-btn op">-</div>
-                <div class="calc-btn">1</div><div class="calc-btn">2</div><div class="calc-btn">3</div><div class="calc-btn op">+</div>
-                <div class="calc-btn" style="grid-column: span 2">0</div><div class="calc-btn">.</div><div class="calc-btn op">=</div>
-            </div>`;
-            let str = "";
-            container.querySelectorAll('.calc-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const v = btn.innerText;
-                    if(v === 'C') str = "";
-                    else if(v === '=') str = eval(str).toString();
-                    else str += v;
-                    document.getElementById('calc-res').innerText = str || "0";
+            initTTT() {
+                const g = document.getElementById('ttt-g');
+                const h = document.getElementById('ttt-h');
+                let b = Array(9).fill(null);
+                const check = (m) => {
+                    const l = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                    for(let x of l) if(m[x[0]] && m[x[0]] === m[x[1]] && m[x[0]] === m[x[2]]) return m[x[0]];
+                    return m.includes(null) ? null : 'T';
                 };
-            });
-        }
-
-        /**
-         * =========================================
-         * APP: TERMINAL
-         * =========================================
-         */
-        function initTerm(containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<div class="term-app" id="term-out">Last login: Wed Feb 25 on console<br>macOS-Tahoe:~ user$ <span id="term-in" contenteditable="true" style="outline:none"></span></div>`;
-            const input = document.getElementById('term-in');
-            input.focus();
-            input.onkeydown = e => {
-                if(e.key === 'Enter') {
-                    e.preventDefault();
-                    const cmd = input.innerText;
-                    let out = `<br>${cmd}<br>`;
-                    if(cmd === 'ls') out += "Desktop  Downloads  Documents  Applications";
-                    else if(cmd === 'whoami') out += "root";
-                    else out += "command not found: " + cmd;
-                    document.getElementById('term-out').innerHTML += out + "<br>macOS-Tahoe:~ user$ <span id='term-in' contenteditable='true' style='outline:none'></span>";
-                    const newIn = document.getElementById('term-in');
-                    newIn.focus();
-                    initTermLogic(newIn);
-                }
-            };
-        }
-
-        /**
-         * =========================================
-         * LIQUID RAINBOW SHADER (OPTIMIZED FOR CHAT)
-         * =========================================
-         */
-        function initLiquid(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const gl = canvas.getContext('webgl');
-            canvas.width = 440; canvas.height = 640;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-
-            const vs = `attribute vec2 position; void main(){ gl_Position=vec4(position,0.0,1.0); }`;
-            const fs = `
-                precision highp float; uniform vec2 u_res; uniform float u_time;
-                vec2 hash(vec2 p){ p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))); return -1.+2.*fract(sin(p)*43758.545); }
-                float noise(vec2 p){
-                    vec2 i=floor(p+(p.x+p.y)*.366); vec2 a=p-i+(i.x+i.y)*.211;
-                    float m=step(a.y,a.x); vec2 o=vec2(m,1.-m);
-                    vec2 b=a-o+.211; vec2 c=a-1.+.422;
-                    vec3 h=max(.5-vec3(dot(a,a),dot(b,b),dot(c,c)),0.);
-                    return dot(h*h*h*h*vec3(dot(a,hash(i)),dot(b,hash(i+o)),dot(c,hash(i+1.))),vec3(70.));
-                }
-                void main(){
-                    vec2 uv = gl_FragCoord.xy/u_res.xy;
-                    float t = u_time*0.2;
-                    float n = noise(uv*3. + t);
-                    vec3 col = 0.5 + 0.5*cos(t + uv.xyx + vec3(0,2,4) + n);
-                    gl_FragColor = vec4(col*0.6, 1.0);
-                }
-            `;
-            
-            const shader = (t, s) => { const sh=gl.createShader(t); gl.shaderSource(sh,s); gl.compileShader(sh); return sh; };
-            const prog = gl.createProgram();
-            gl.attachShader(prog, shader(gl.VERTEX_SHADER, vs));
-            gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, fs));
-            gl.linkProgram(prog); gl.useProgram(prog);
-
-            const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
-            const pos = gl.getAttribLocation(prog, "position"); gl.enableVertexAttribArray(pos);
-            gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-
-            const uTime = gl.getUniformLocation(prog, "u_time");
-            const uRes = gl.getUniformLocation(prog, "u_res");
-            const start = Date.now();
-            
-            function render() {
-                gl.uniform2f(uRes, canvas.width, canvas.height);
-                gl.uniform1f(uTime, (Date.now()-start)/1000);
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-                requestAnimationFrame(render);
+                const minimax = (m, d, isM) => {
+                    let r = check(m);
+                    if (r === 'O') return 10; if (r === 'X') return -10; if (r === 'T') return 0;
+                    if (isM) {
+                        let best = -Infinity;
+                        for(let i=0; i<9; i++) if(!m[i]){ m[i]='O'; best=Math.max(best, minimax(m, d+1, false)); m[i]=null; }
+                        return best;
+                    } else {
+                        let best = Infinity;
+                        for(let i=0; i<9; i++) if(!m[i]){ m[i]='X'; best=Math.min(best, minimax(m, d+1, true)); m[i]=null; }
+                        return best;
+                    }
+                };
+                const render = () => {
+                    g.innerHTML = '';
+                    b.forEach((v, i) => {
+                        const c = document.createElement('div');
+                        c.className = 'ttt-cell';
+                        c.innerText = v || '';
+                        c.onclick = () => {
+                            if (v || check(b)) return;
+                            b[i] = 'X';
+                            if (!check(b)) {
+                                let best = -Infinity, move;
+                                for(let j=0; j<9; j++) if(!b[j]){ b[j]='O'; let s=minimax(b,0,false); b[j]=null; if(s>best){best=s;move=j;}}
+                                b[move] = 'O';
+                            }
+                            render();
+                            let win = check(b);
+                            if(win) h.innerText = win === 'T' ? "Draw!" : win + " Wins!";
+                        };
+                        g.appendChild(c);
+                    });
+                };
+                render();
             }
-            render();
+
+            focus(id) {
+                this.zIndex++;
+                const win = this.windows[id];
+                win.style.zIndex = this.zIndex;
+                win.style.display = 'flex';
+                setTimeout(() => win.classList.add('show'), 10);
+                document.getElementById('active-app-name').innerText = APP_DATA.find(a => a.id === id).name;
+            }
+
+            terminate(id) {
+                const win = this.windows[id];
+                win.classList.remove('show');
+                document.getElementById(`dot-${id}`).classList.remove('on');
+                setTimeout(() => { win.remove(); delete this.windows[id]; }, 300);
+            }
+
+            hide(id) {
+                const win = this.windows[id];
+                win.classList.remove('show');
+                setTimeout(() => win.style.display = 'none', 300);
+            }
+
+            dragStart(e, id) {
+                const win = this.windows[id];
+                this.focus(id);
+                const offX = e.clientX - win.offsetLeft;
+                const offY = e.clientY - win.offsetTop;
+                const shields = document.querySelectorAll('.shield');
+                shields.forEach(s => s.style.display = 'block');
+                const move = (ev) => { win.style.left = `${ev.clientX - offX}px`; win.style.top = `${ev.clientY - offY}px`; };
+                const end = () => {
+                    document.removeEventListener('mousemove', move);
+                    document.removeEventListener('mouseup', end);
+                    shields.forEach(s => s.style.display = 'none');
+                };
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', end);
+            }
         }
 
-        // Boot Finder by default
-        openWindow('finder');
-
+        const os = new TahoeOS();
     </script>
 </body>
 </html>
