@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>macOS Tahoe - Developer Platinum Build</title>
+    <title>macOS Tahoe - Hyper-Architecture Build v7.0</title>
     <style>
         /* ==========================================================================
-           1. SYSTEM VARIABLES & DESIGN TOKENS
+           1. CORE KERNEL DESIGN TOKENS (Liquid Glass)
            ========================================================================== */
         :root {
             --apple-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-            --glass: rgba(255, 255, 255, 0.22);
-            --glass-thick: rgba(255, 255, 255, 0.45);
-            --glass-dark: rgba(20, 20, 20, 0.7);
-            --blur: blur(55px) saturate(215%) brightness(1.1);
-            --radius-win: 18px;
-            --radius-dock: 24px;
-            --shadow-win: 0 50px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.2) inset;
-            --accent: #007aff;
+            --glass-base: rgba(255, 255, 255, 0.18);
+            --glass-thick: rgba(255, 255, 255, 0.42);
+            --glass-dark: rgba(10, 10, 10, 0.72);
+            --blur-radius: blur(60px) saturate(220%) brightness(1.15);
+            --radius-win: 20px;
+            --radius-dock: 28px;
+            --shadow-win: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.2) inset;
+            --accent-blue: #007aff;
             --menu-h: 32px;
-            --dock-h: 84px;
+            --dock-h: 88px;
         }
 
         * {
@@ -31,21 +31,21 @@
         body, html { width: 100vw; height: 100vh; overflow: hidden; background: #000; position: relative; }
 
         /* ==========================================================================
-           2. 4K TAHOE LIVE ENGINE
+           2. TAHOE LIVE VIDEO WORKER (4K)
            ========================================================================== */
         #wallpaper-engine { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
         #wallpaper-engine iframe {
             width: 140vw; height: 140vh; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%); filter: contrast(1.1) brightness(0.9);
         }
-        #desktop-overlay { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 15%); }
+        #desktop-tint { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 20%); }
 
         /* ==========================================================================
-           3. LIQUID GLASS COMPONENTS
+           3. SYSTEM TOP NAVIGATION (LIQUID GLASS)
            ========================================================================== */
         #menu-bar {
             position: absolute; top: 0; width: 100%; height: var(--menu-h);
-            background: rgba(255, 255, 255, 0.15); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            background: rgba(255, 255, 255, 0.12); backdrop-filter: var(--blur-radius); -webkit-backdrop-filter: var(--blur-radius);
             border-bottom: 0.5px solid rgba(255,255,255,0.2);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; color: #fff; font-size: 13.5px; font-weight: 500; z-index: 1000000;
@@ -53,80 +53,86 @@
         .menu-left, .menu-right { display: flex; align-items: center; gap: 18px; }
         .apple-logo { font-size: 19px; }
 
+        /* ==========================================================================
+           4. ULTRA-WIDE FISHEYE DOCK
+           ========================================================================== */
         #dock-container { position: absolute; bottom: 12px; width: 100%; display: flex; justify-content: center; z-index: 1000000; }
         #dock {
-            width: 94%; max-width: 1300px; height: var(--dock-h);
-            background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            width: 96%; max-width: 1400px; height: var(--dock-h);
+            background: var(--glass-base); backdrop-filter: var(--blur-radius); -webkit-backdrop-filter: var(--blur-radius);
             border: 1px solid var(--glass-thick); border-radius: var(--radius-dock);
-            padding: 10px 20px; display: flex; align-items: flex-end; gap: 10px;
+            padding: 10px 22px; display: flex; align-items: flex-end; gap: 12px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.35);
         }
-        .dock-item { position: relative; width: 56px; height: 56px; transition: transform 0.15s cubic-bezier(0.2, 1, 0.3, 1); }
-        .dock-item svg { width: 100%; height: 100%; cursor: pointer !important; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); }
-        .dock-item:hover { transform: scale(1.45) translateY(-15px); margin: 0 10px; }
+        .dock-item { position: relative; width: 56px; height: 56px; display: flex; flex-direction: column; align-items: center; }
+        .dock-svg { width: 100%; height: 100%; cursor: pointer !important; filter: drop-shadow(0 5px 12px rgba(0,0,0,0.2)); transition: transform 0.1s ease; }
         .dock-dot {
             position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
             width: 4px; height: 4px; background: #fff; border-radius: 50%; opacity: 0; transition: opacity 0.3s;
         }
         .dock-dot.active { opacity: 1; }
+        .dock-item:hover .dock-svg { transform: scale(1.45) translateY(-15px); }
 
         /* ==========================================================================
-           4. WINDOW MANAGEMENT SYSTEM
+           5. PROCESS CONTROLLED WINDOW SYSTEM
            ========================================================================== */
         #window-space { position: absolute; top: var(--menu-h); width: 100%; height: calc(100% - var(--menu-h)); z-index: 10; }
         
         .window {
             position: absolute; width: 850px; height: 580px; border-radius: var(--radius-win);
-            background: rgba(245, 245, 247, 0.88); backdrop-filter: var(--blur);
+            background: rgba(245, 245, 247, 0.88); backdrop-filter: var(--blur-radius);
             box-shadow: var(--shadow-win); display: none; flex-direction: column; overflow: hidden;
             transform: scale(0.92) translateY(40px); opacity: 0;
             transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease;
         }
-        .window.show { display: flex; transform: scale(1) translateY(0); opacity: 1; }
+        .window.on { display: flex; opacity: 1; transform: scale(1) translateY(0); }
         .window.dark { background: var(--glass-dark); color: #fff; }
 
-        /* Liquid Chat Special Layering */
-        .window.chat-os { background: transparent; backdrop-filter: none; box-shadow: none; }
-        .chat-shell { position: relative; width: 100%; height: 100%; border-radius: var(--radius-win); overflow: hidden; box-shadow: var(--shadow-win); }
-        #liquid-bg-canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        .chat-ui-layer { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; background: rgba(0,0,0,0.45); }
+        /* Liquid Chat Master Layer */
+        .window.liquid-win { background: transparent; backdrop-filter: none; box-shadow: none; border: none; }
+        .liquid-shell { position: relative; width: 100%; height: 100%; border-radius: var(--radius-win); overflow: hidden; box-shadow: var(--shadow-win); }
+        #gl-liquid-bg { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        .liquid-ui-wrap { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; background: rgba(0,0,0,0.48); }
 
+        /* Traffic Light Interface */
         .title-bar {
             height: 48px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px;
             background: linear-gradient(180deg, rgba(255,255,255,0.45), transparent);
             border-bottom: 0.5px solid rgba(0,0,0,0.1); cursor: grab !important;
         }
         .title-bar:active { cursor: grabbing !important; }
-        .traffic-lights { display: flex; gap: 8px; width: 60px; }
-        .t-btn { width: 12px; height: 12px; border-radius: 50%; border: 0.5px solid rgba(0,0,0,0.1); cursor: pointer !important; }
-        .t-close { background: #ff5f57; } .t-min { background: #febc2e; } .t-max { background: #28c840; }
-        .win-title { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: #333; margin-left: -60px; pointer-events: none; }
-        .dark .win-title { color: #ccc; }
+        .lights-wrap { display: flex; gap: 8px; margin-right: 20px; }
+        .l-btn { width: 12px; height: 12px; border-radius: 50%; border: 0.5px solid rgba(0,0,0,0.1); cursor: pointer !important; }
+        .close-l { background: #ff5f57; } .min-l { background: #febc2e; } .max-l { background: #28c840; }
+        .title-text { flex: 1; text-align: center; font-size: 13.5px; font-weight: 600; color: #333; margin-left: -60px; pointer-events: none; }
+        .dark .title-text { color: #ccc; }
 
-        .app-content { flex: 1; position: relative; overflow: hidden; }
+        .app-content-box { flex: 1; position: relative; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; background: #fff; }
-        .iframe-shield { position: absolute; inset: 0; z-index: 1000; display: none; }
+        .shield-layer { position: absolute; inset: 0; z-index: 1000; display: none; }
 
         /* ==========================================================================
-           5. SYSTEM APPS UI (CALC, TTT, TERM, MONITOR)
+           6. DEEP-LEVEL APPLICATION LOGIC UI
            ========================================================================== */
-        .app-ttt { height: 100%; background: #0f0f0f; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
-        .ttt-grid { display: grid; grid-template-columns: repeat(3, 110px); gap: 10px; }
-        .ttt-cell { width: 110px; height: 110px; background: #1a1a1a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 55px; font-weight: bold; cursor: pointer !important; }
-        
-        .app-calc { height: 100%; display: flex; flex-direction: column; background: #222; }
-        .calc-scr { height: 120px; color: #fff; font-size: 60px; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; font-weight: 200; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex: 1; gap: 1px; background: #444; }
-        .c-btn { background: #666; color: #fff; border: none; font-size: 24px; cursor: pointer !important; }
-        .c-btn.op { background: #ff9f0a; font-size: 32px; }
+        /* Neural Pathfinding TTT AI */
+        .ttt-box { height: 100%; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+        .ttt-grid { display: grid; grid-template-columns: repeat(3, 115px); gap: 10px; }
+        .ttt-cell { width: 115px; height: 115px; background: #1a1a1a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 55px; font-weight: bold; cursor: pointer !important; transition: background 0.2s; }
+        .ttt-cell:hover { background: #252525; }
 
-        .app-term { background: #000; color: #00ff00; padding: 20px; font-family: "SF Mono", monospace; height: 100%; overflow-y: auto; font-size: 14px; }
-        .term-in { background: transparent; border: none; color: #fff; outline: none; width: 60%; font-family: inherit; }
+        /* Calc */
+        .calc-box { height: 100%; display: flex; flex-direction: column; background: #1e1e1e; }
+        .calc-disp { height: 120px; color: #fff; font-size: 60px; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; font-weight: 200; }
+        .calc-matrix { display: grid; grid-template-columns: repeat(4, 1fr); flex: 1; gap: 1px; background: #444; }
+        .calc-btn-unit { background: #666; color: #fff; border: none; font-size: 24px; cursor: pointer !important; }
+        .calc-btn-unit.op { background: #ff9f0a; font-size: 32px; }
 
-        .app-monitor { padding: 30px; color: #fff; height: 100%; }
-        .mon-card { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
-        .mon-bar { height: 8px; background: #333; border-radius: 4px; margin-top: 15px; overflow: hidden; }
-        .mon-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.6s ease; }
+        /* System Monitor */
+        .sys-box { padding: 30px; color: #fff; height: 100%; }
+        .sys-row { background: rgba(255,255,255,0.08); border-radius: 14px; padding: 22px; margin-bottom: 22px; }
+        .sys-meter { height: 10px; background: #333; border-radius: 5px; margin-top: 15px; overflow: hidden; }
+        .sys-meter-fill { height: 100%; background: var(--accent-blue); width: 0%; transition: width 0.7s cubic-bezier(0.1, 1, 0.3, 1); }
+
     </style>
 </head>
 <body>
@@ -134,18 +140,18 @@
     <div id="wallpaper-engine">
         <iframe src="https://www.youtube.com/embed/KT5zTS_BEjQ?autoplay=1&mute=1&loop=1&playlist=KT5zTS_BEjQ&controls=0&modestbranding=1&rel=0&iv_load_policy=3&enablejsapi=1" frameborder="0"></iframe>
     </div>
-    <div id="desktop-overlay"></div>
+    <div id="desktop-tint"></div>
 
     <div id="menu-bar">
         <div class="menu-left">
             <span class="apple-logo"></span>
-            <span id="focused-app-name" style="font-weight:700;">Finder</span>
+            <span id="active-p-name" style="font-weight:700;">Finder</span>
             <span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span>
         </div>
         <div class="menu-right">
             <span>🔋 100%</span>
             <span>📶</span>
-            <span id="os-clock">Wed 7:33 PM</span>
+            <span id="os-time">Wed 7:33 PM</span>
         </div>
     </div>
 
@@ -158,42 +164,38 @@
     <script>
         /**
          * =========================================
-         * 1. VECTOR ASSET LIBRARY
+         * 1. 100% RELIABLE VECTOR SVG ICONSET
          * =========================================
          */
-        const OS_ICONS = {
+        const OS_SVG = {
             finder: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#E6F2FF"/><path d="M0 22C0 9 9 0 22 0h28v100H22C9 100 0 91 0 78V22z" fill="#007AFF"/><path d="M30 40c0-4 4-8 8-8s8 4 8 8-4 8-8 8-8-4-8-8zm32 0c0-4 4-8 8-8s8 4 8 8-4 8-8 8-8-4-8-8z" fill="#fff"/><path d="M46 65c5 10 15 10 15 0" stroke="#fff" stroke-width="4" fill="none"/></svg>`,
             safari: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#fff"/><circle cx="50" cy="50" r="42" fill="#007AFF"/><path d="M42 42l-10 25 25-10 10-25-25 10z" fill="#FF3B30"/><path d="M58 58l-25 10 10-25 25-10-10 25z" fill="#fff"/></svg>`,
             chat: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#34C759"/><path d="M75 50c0 13-11 24-25 24-4 0-8-1-11-3L20 78l4-16c-3-4-4-8-4-12 0-13 11-24 25-24s25 11 25 24z" fill="#fff"/></svg>`,
             maps: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#5856D6"/><circle cx="50" cy="50" r="5" fill="#FF3B30"/></svg>`,
-            music: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#1DB954"/><path d="M50 20c-16 0-30 14-30 30s14 30 30 30 30-14 30-30-14-30-30-30z" fill="#fff" opacity="0.3"/></svg>`,
-            ttt: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF2D55"/><path d="M35 25v50M65 25v50M25 40h50M25 60h50" stroke="#fff" stroke-width="4"/></svg>`,
-            calc: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF9500"/><circle cx="35" cy="55" r="5" fill="#fff"/><circle cx="65" cy="55" r="5" fill="#fff"/></svg>`,
-            term: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#1C1C1E"/><path d="M25 35l15 15-15 15" stroke="#00FF00" stroke-width="6" fill="none"/></svg>`,
+            music: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF2D55"/><circle cx="45" cy="70" r="12" fill="#fff"/><path d="M57 70V25l25-5v45" stroke="#fff" stroke-width="6" fill="none"/></svg>`,
+            ttt: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF2D55"/><path d="M35 25v50M65 25v50M25 40h50M25 60h50" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>`,
+            calc: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF9500"/><rect x="25" y="25" width="50" height="12" rx="4" fill="#fff"/></svg>`,
             sys: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#1C1C1E"/><path d="M20 70l15-20 15 25 15-45 15 30" stroke="#00FF00" stroke-width="4" fill="none"/></svg>`,
-            photos: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#fff"/><circle cx="50" cy="35" r="15" fill="#FF3B30" opacity="0.8"/></svg>`,
-            mail: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#007AFF"/><path d="M20 35l30 20 30-20" stroke="#fff" stroke-width="4" fill="none"/></svg>`,
-            trash: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#CFD8DC"/><path d="M30 35h40v45H30z" stroke="#546E7A" stroke-width="4" fill="none"/></svg>`
+            term: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#1C1C1E"/><path d="M25 35l15 15-15 15" stroke="#00FF00" stroke-width="6" fill="none" stroke-linecap="round"/></svg>`,
+            notes: `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FFF200"/><path d="M20 40h60M20 60h60" stroke="#000" stroke-width="4"/></svg>`
         };
 
-        const APP_MANIFEST = [
-            { id: 'finder', name: 'Finder', icon: OS_ICONS.finder, type: 'iframe', url: 'https://en.wikipedia.org/wiki/MacOS' },
-            { id: 'safari', name: 'Safari', icon: OS_ICONS.safari, type: 'iframe', url: 'https://www.bing.com' },
-            { id: 'chat', name: 'Liquid Chat', icon: OS_ICONS.chat, type: 'chat', url: 'https://deadsimplechat.com/J4fFLy4Ek' },
-            { id: 'maps', name: 'Maps', icon: OS_ICONS.maps, type: 'iframe', url: 'https://www.openstreetmap.org/export/embed.html?bbox=-120.2,38.9,-120.0,39.1&layer=mapnik' },
-            { id: 'music', name: 'Music', icon: OS_ICONS.music, type: 'iframe', url: 'https://open.spotify.com/embed/playlist/3' },
-            { id: 'mail', name: 'Mail', icon: OS_ICONS.mail, type: 'static', html: '<div style="padding:40px;"><h3>Inbox</h3><p>Apple Store: Your order is ready.</p></div>' },
-            { id: 'photos', name: 'Photos', icon: OS_ICONS.photos, type: 'iframe', url: 'https://www.flickr.com/explore' },
-            { id: 'calc', name: 'Calculator', icon: OS_ICONS.calc, type: 'calc' },
-            { id: 'ttt', name: 'TicTacToe AI', icon: OS_ICONS.ttt, type: 'ttt' },
-            { id: 'sys', name: 'Activity Monitor', icon: OS_ICONS.sys, type: 'sys' },
-            { id: 'term', name: 'Terminal', icon: OS_ICONS.term, type: 'term' },
-            { id: 'trash', name: 'Trash', icon: OS_ICONS.trash, type: 'iframe', url: 'about:blank' }
+        const CORE_PROCESSES = [
+            { id: 'finder', name: 'Finder', icon: OS_SVG.finder, type: 'iframe', url: 'https://en.wikipedia.org/wiki/MacOS' },
+            { id: 'safari', name: 'Safari', icon: OS_SVG.safari, type: 'iframe', url: 'https://www.bing.com' },
+            { id: 'chat', name: 'Liquid Chat', icon: OS_SVG.chat, type: 'chat', url: 'https://deadsimplechat.com/J4fFLy4Ek' },
+            { id: 'maps', name: 'Maps', icon: OS_SVG.maps, type: 'iframe', url: 'https://www.openstreetmap.org/export/embed.html?bbox=-120.2,38.9,-120.0,39.1&layer=mapnik' },
+            { id: 'music', name: 'Music', icon: OS_SVG.music, type: 'iframe', url: 'https://open.spotify.com/embed/playlist/3' },
+            { id: 'notes', name: 'Notes', icon: OS_SVG.notes, type: 'notes' },
+            { id: 'calc', name: 'Calculator', icon: OS_SVG.calc, type: 'calc' },
+            { id: 'ttt', name: 'TicTacToe AI', icon: OS_SVG.ttt, type: 'ttt' },
+            { id: 'sys', name: 'Monitor', icon: OS_SVG.sys, type: 'sys' },
+            { id: 'term', name: 'Terminal', icon: OS_SVG.term, type: 'term' }
         ];
 
         /**
          * =========================================
-         * 2. TAHOE KERNEL ARCHITECTURE
+         * 2. TAHOE HYPER-KERNEL ENGINE
          * =========================================
          */
         class TahoeKernel {
@@ -201,82 +203,81 @@
                 this.dock = document.getElementById('dock');
                 this.space = document.getElementById('window-space');
                 this.zIndex = 1000;
-                this.procs = {};
-                this.initOS();
+                this.processes = {};
+                this.init();
             }
 
-            initOS() {
-                // System Clock
+            init() {
+                // System Clock Engine
                 setInterval(() => {
-                    const d = new Date();
-                    document.getElementById('os-clock').innerText = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                    const now = new Date();
+                    document.getElementById('os-time').innerText = now.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
                 }, 1000);
 
-                // Dock Builder
-                APP_MANIFEST.forEach(app => {
+                // Build Ultra-Wide Dock
+                CORE_PROCESSES.forEach(p => {
                     const el = document.createElement('div');
                     el.className = 'dock-item';
-                    el.innerHTML = `<div class="dock-icon">${app.icon}</div><div class="dock-dot" id="dot-${app.id}"></div>`;
-                    el.onclick = () => this.execute(app.id);
+                    el.innerHTML = `<div class="dock-svg">${p.icon}</div><div class="dock-dot" id="dot-${p.id}"></div>`;
+                    el.onclick = () => this.launch(p.id);
                     this.dock.appendChild(el);
                 });
 
-                this.execute('chat'); // Autostart Chat
+                this.launch('chat'); // Autostart the Chat sandbox
             }
 
-            execute(id) {
-                const app = APP_MANIFEST.find(p => p.id === id);
-                if (this.procs[id]) { this.focus(id); return; }
+            launch(id) {
+                const app = CORE_PROCESSES.find(p => p.id === id);
+                if (this.processes[id]) { this.focus(id); return; }
 
                 const win = document.createElement('div');
-                const isDark = ['calc', 'term', 'sys', 'ttt'].includes(id) ? 'dark' : '';
-                const isLiquid = id === 'chat' ? 'chat-os' : '';
+                const dark = ['calc', 'term', 'sys', 'ttt'].includes(id) ? 'dark' : '';
+                const liquid = id === 'chat' ? 'liquid-win' : '';
                 
                 win.id = `win-${id}`;
-                win.className = `window ${isDark} ${isLiquid}`;
-                win.style.left = `${140 + (Object.keys(this.procs).length * 40)}px`;
-                win.style.top = `${70 + (Object.keys(this.procs).length * 40)}px`;
+                win.className = `window ${dark} ${liquid}`;
+                win.style.left = `${160 + (Object.keys(this.processes).length * 45)}px`;
+                win.style.top = `${90 + (Object.keys(this.processes).length * 45)}px`;
 
-                const traffic = `<div class="traffic-lights"><div class="t-btn t-close" onclick="os.kill('${id}')"></div><div class="t-btn t-min" onclick="os.minimize('${id}')"></div><div class="t-btn t-max"></div></div>`;
+                const btns = `<div class="lights-wrap"><div class="l-btn close-l" onclick="os.kill('${id}')"></div><div class="l-btn min-l" onclick="os.minimize('${id}')"></div><div class="l-btn max-l"></div></div>`;
 
                 if (id === 'chat') {
-                    win.innerHTML = `<div class="chat-shell"><canvas id="liquid-bg-canvas"></canvas><div class="chat-ui-layer"><div class="title-bar dark" onmousedown="os.startDrag(event, '${id}')">${traffic}<div class="win-title">${app.name}</div></div><div class="app-content"><div class="iframe-shield"></div><iframe src="${app.url}"></iframe></div></div></div>`;
+                    win.innerHTML = `<div class="liquid-shell"><canvas id="gl-liquid-bg"></canvas><div class="liquid-ui-wrap"><div class="title-bar dark" onmousedown="os.startDrag(event, '${id}')">${btns}<div class="title-text">${app.name}</div></div><div class="app-content-box"><div class="shield-layer"></div><iframe src="${app.url}"></iframe></div></div></div>`;
                 } else {
-                    win.innerHTML = `<div class="title-bar" onmousedown="os.startDrag(event, '${id}')">${traffic}<div class="win-title">${app.name}</div></div><div class="app-content"><div class="iframe-shield"></div>${this.getAppBody(app)}</div>`;
+                    win.innerHTML = `<div class="title-bar" onmousedown="os.startDrag(event, '${id}')">${btns}<div class="title-text">${app.name}</div></div><div class="app-content-box"><div class="shield-layer"></div>${this.getAppBody(app)}</div>`;
                 }
 
                 this.space.appendChild(win);
-                this.procs[id] = win;
+                this.processes[id] = win;
                 document.getElementById(`dot-${id}`).classList.add('active');
 
                 setTimeout(() => {
-                    win.classList.add('show');
+                    win.classList.add('on');
                     this.focus(id);
-                    this.initAppCode(id);
+                    this.bindLogic(id);
                 }, 50);
             }
 
             getAppBody(app) {
                 if (app.type === 'iframe') return `<iframe src="${app.url}"></iframe>`;
-                if (app.type === 'calc') return `<div class="app-calc"><div class="calc-scr" id="c-scr">0</div><div class="calc-grid"><button class="c-btn">7</button><button class="c-btn">8</button><button class="c-btn">9</button><button class="c-btn op">÷</button><button class="c-btn">4</button><button class="c-btn">5</button><button class="c-btn">6</button><button class="c-btn op">×</button><button class="c-btn">1</button><button class="c-btn">2</button><button class="c-btn">3</button><button class="c-btn op">+</button><button class="c-btn" style="grid-column: span 2">0</button><button class="c-btn">.</button><button class="c-btn op">=</button></div></div>`;
-                if (app.type === 'ttt') return `<div class="app-ttt"><h2 id="ttt-h" style="margin-bottom:20px;">Your Turn</h2><div class="ttt-grid" id="ttt-g"></div></div>`;
-                if (app.type === 'term') return `<div class="app-term">Tahoe Kernel v5.2.0 (Stable)<br>root@tahoe-macbook ~ % <span id="t-in" contenteditable="true" style="outline:none"></span></div>`;
-                if (app.type === 'sys') return `<div class="app-monitor"><div class="mon-card"><h3>CPU Processor</h3><div class="mon-bar"><div class="mon-fill" id="cpu-f"></div></div></div><div class="mon-card"><h3>System RAM</h3><div class="mon-bar"><div class="mon-fill" id="ram-f"></div></div></div></div>`;
-                return app.html || '';
+                if (app.type === 'calc') return `<div class="calc-box"><div class="calc-disp" id="c-scr">0</div><div class="calc-matrix"><button class="calc-btn-unit">7</button><button class="calc-btn-unit">8</button><button class="calc-btn-unit">9</button><button class="calc-btn-unit op">÷</button><button class="calc-btn-unit">4</button><button class="calc-btn-unit">5</button><button class="calc-btn-unit">6</button><button class="calc-btn-unit op">×</button><button class="calc-btn-unit">1</button><button class="calc-btn-unit">2</button><button class="calc-btn-unit">3</button><button class="calc-btn-unit op">+</button><button class="calc-btn-unit" style="grid-column: span 2">0</button><button class="calc-btn-unit">.</button><button class="calc-btn-unit op">=</button></div></div>`;
+                if (app.type === 'ttt') return `<div class="ttt-box"><h2 id="ttt-h" style="margin-bottom:20px;">Your Turn</h2><div class="ttt-grid" id="ttt-g"></div></div>`;
+                if (app.type === 'term') return `<div class="ttt-box" style="background:#000; font-family:monospace; color:#39ff14; padding:20px; align-items:flex-start; justify-content:flex-start; overflow-y:auto;">Tahoe Terminal Build 7.0<br>root@macbook ~ % <span id="t-in" contenteditable="true" style="outline:none"></span></div>`;
+                if (app.type === 'sys') return `<div class="sys-box"><div class="sys-row"><h3>CPU Utilization</h3><div class="sys-meter"><div class="sys-meter-fill" id="cpu-f"></div></div></div><div class="sys-row"><h3>Physical Memory</h3><div class="sys-meter"><div class="sys-meter-fill" id="ram-f"></div></div></div></div>`;
+                if (app.type === 'notes') return `<textarea style="width:100%;height:100%;border:none;padding:25px;font-size:16px;outline:none;" placeholder="Type notes here..."></textarea>`;
             }
 
-            initAppCode(id) {
-                if (id === 'chat') this.initLiquid();
-                if (id === 'calc') this.initCalc();
-                if (id === 'ttt') this.initTTT();
-                if (id === 'sys') this.initSys();
-                if (id === 'term') this.initTerm();
+            bindLogic(id) {
+                if (id === 'chat') this.bootGL();
+                if (id === 'calc') this.bootCalc();
+                if (id === 'ttt') this.bootTTT();
+                if (id === 'sys') this.bootSys();
+                if (id === 'term') this.bootTerm();
             }
 
-            // IMPOSSIBLE MINIMAX AI
-            initTTT() {
-                const g = document.getElementById('ttt-g');
-                const h = document.getElementById('ttt-h');
+            // NEURAL MINIMAX AI
+            bootTTT() {
+                const g = document.getElementById('ttt-g'), h = document.getElementById('ttt-h');
                 let b = Array(9).fill(null);
                 const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
                 const check = (m) => {
@@ -310,8 +311,8 @@
                                 b[move] = 'O';
                             }
                             render();
-                            let res = check(b);
-                            if(res) h.innerText = res === 'T' ? "Draw!" : res + " Wins!";
+                            let result = check(b);
+                            if(result) h.innerText = result === 'T' ? "Draw!" : result + " Wins!";
                         };
                         g.appendChild(c);
                     });
@@ -319,10 +320,10 @@
                 render();
             }
 
-            initCalc() {
+            bootCalc() {
                 const scr = document.getElementById('c-scr');
                 let str = "";
-                document.querySelectorAll('.c-btn').forEach(b => {
+                document.querySelectorAll('.calc-btn-unit').forEach(b => {
                     b.onclick = () => {
                         const v = b.innerText;
                         if (v === '=') { try { str = eval(str.replace('×', '*').replace('÷', '/')).toString(); } catch { str = 'Err'; } }
@@ -332,16 +333,15 @@
                 });
             }
 
-            initSys() {
+            bootSys() {
                 setInterval(() => {
-                    const c = document.getElementById('cpu-f');
-                    const r = document.getElementById('ram-f');
+                    const c = document.getElementById('cpu-f'), r = document.getElementById('ram-f');
                     if(c) c.style.width = Math.random() * 100 + '%';
-                    if(r) r.style.width = (45 + Math.random() * 20) + '%';
-                }, 1000);
+                    if(r) r.style.width = (55 + Math.random() * 15) + '%';
+                }, 1300);
             }
 
-            initTerm() {
+            bootTerm() {
                 const input = document.getElementById('t-in');
                 input.focus();
                 input.onkeydown = (e) => {
@@ -349,18 +349,18 @@
                         e.preventDefault();
                         const cmd = input.innerText;
                         let out = `<br>${cmd}<br>`;
-                        if(cmd === 'ls') out += "Applications Desktop Documents Library";
-                        else if(cmd === 'uname -a') out += "Tahoe Kernel 5.2.0-RELEASE x86_64";
-                        else out += "command not found: " + cmd;
-                        input.parentElement.innerHTML += out + "<br>root@tahoe-macbook ~ % <span id='t-in' contenteditable='true' style='outline:none'></span>";
+                        if(cmd === 'ls') out += "Desktop Documents Downloads Library System";
+                        else if(cmd === 'arch') out += "macOS Tahoe x86_64";
+                        else out.innerHTML += "command not found: " + cmd;
+                        input.parentElement.innerHTML += out + "<br>root@macbook ~ % <span id='t-in' contenteditable='true' style='outline:none'></span>";
                         document.getElementById('t-in').focus();
-                        this.initTerm(); 
+                        this.bootTerm(); 
                     }
                 };
             }
 
-            initLiquid() {
-                const canvas = document.getElementById('liquid-bg-canvas');
+            bootGL() {
+                const canvas = document.getElementById('gl-liquid-bg');
                 const gl = canvas.getContext('webgl');
                 canvas.width = 440; canvas.height = 640;
                 gl.viewport(0, 0, canvas.width, canvas.height);
@@ -368,7 +368,7 @@
                 gl.shaderSource(vs, `attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`);
                 gl.compileShader(vs);
                 const fs = gl.createShader(gl.FRAGMENT_SHADER);
-                gl.shaderSource(fs, `precision highp float;uniform vec2 r;uniform float t;void main(){vec2 u=gl_FragCoord.xy/r;float x=t*.2;gl_FragColor=vec4(0.5+0.5*cos(x+u.xyx+vec3(0,2,4)),1.);}`);
+                gl.shaderSource(fs, `precision highp float;uniform vec2 r;uniform float t;void main(){vec2 u=gl_FragCoord.xy/r;float x=t*.25;gl_FragColor=vec4(0.5+0.5*cos(x+u.xyx+vec3(0,2,4)),1.);}`);
                 gl.compileShader(fs);
                 const pg = gl.createProgram(); gl.attachShader(pg, vs); gl.attachShader(pg, fs); gl.linkProgram(pg); gl.useProgram(pg);
                 gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
@@ -384,28 +384,28 @@
 
             focus(id) {
                 this.zIndex++;
-                const win = this.procs[id];
+                const win = this.processes[id];
                 win.style.zIndex = this.zIndex;
-                document.getElementById('focused-app-name').innerText = APP_MANIFEST.find(p => p.id === id).name;
+                document.getElementById('active-p-name').innerText = CORE_PROCESSES.find(p => p.id === id).name;
             }
 
             kill(id) {
-                const win = this.procs[id];
-                win.classList.remove('show');
+                const win = this.processes[id];
+                win.classList.remove('on');
                 document.getElementById(`dot-${id}`).classList.remove('active');
-                setTimeout(() => { win.remove(); delete this.procs[id]; }, 400);
+                setTimeout(() => { win.remove(); delete this.processes[id]; }, 400);
             }
 
             minimize(id) {
-                const win = this.procs[id];
-                win.classList.toggle('show');
+                const win = this.processes[id];
+                win.classList.toggle('on');
             }
 
             startDrag(e, id) {
-                const win = this.procs[id];
+                const win = this.processes[id];
                 this.focus(id);
                 const offX = e.clientX - win.offsetLeft, offY = e.clientY - win.offsetTop;
-                const shields = document.querySelectorAll('.iframe-shield');
+                const shields = document.querySelectorAll('.shield-layer');
                 shields.forEach(s => s.style.display = 'block');
                 const move = (ev) => { win.style.left = `${ev.clientX - offX}px`; win.style.top = `${ev.clientY - offY}px`; };
                 const end = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', end); shields.forEach(s => s.style.display = 'none'); };
