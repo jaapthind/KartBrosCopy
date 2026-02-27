@@ -3,88 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ice Age Board Game - Classic Edition</title>
+    <title>Ice Age Board Game - Ultimate Edition</title>
     <style>
-        /* CORE GITHUB RESIZING - NO SCROLLBARS */
+        /* ==========================================================================
+           1. STRICT IFRAME/GITHUB PAGES LAYOUT ENGINE (Zero Scroll)
+           ========================================================================== */
         html, body {
             width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
-            font-family: Arial, sans-serif; background: #0d1321; color: #FFF;
-            position: absolute; inset: 0; box-sizing: border-box; user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #0d1321; color: #FFF; position: absolute; inset: 0; 
+            box-sizing: border-box; user-select: none; transition: background 1s;
         }
 
         * { box-sizing: inherit; }
 
-        /* BASIC LAYOUT */
-        #game-container {
-            display: flex; width: 100%; height: 100%; padding: 10px; gap: 10px;
-        }
+        /* SUDDEN DEATH RED GLOW */
+        body.sudden-death { background: #3a0000; }
 
-        /* MOBILE VS DESKTOP SPLIT */
-        @media (min-aspect-ratio: 1/1) { /* Desktop */
+        /* ==========================================================================
+           2. MASTER LAYOUT
+           ========================================================================== */
+        #game-container { display: flex; width: 100%; height: 100%; padding: 1vmin; gap: 1vmin; }
+
+        /* Desktop */
+        @media (min-aspect-ratio: 1/1) {
             #game-container { flex-direction: row; }
             #left-col { flex: 1; display: flex; align-items: center; justify-content: center; }
-            #right-col { width: 400px; display: flex; flex-direction: column; gap: 10px; }
+            #right-col { width: 450px; display: flex; flex-direction: column; gap: 1vmin; }
         }
-        @media (max-aspect-ratio: 1/1) { /* Mobile */
+        /* Mobile */
+        @media (max-aspect-ratio: 1/1) {
             #game-container { flex-direction: column; }
             #left-col { flex: 0 0 55%; display: flex; align-items: center; justify-content: center; }
-            #right-col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+            #right-col { flex: 1; display: flex; flex-direction: column; gap: 1vmin; }
         }
 
-        /* THE BOARD */
-        #board-wrapper {
-            position: relative; width: 100%; height: 100%; max-width: 100vh; max-height: 100vw; aspect-ratio: 1/1;
-        }
+        /* ==========================================================================
+           3. THE BOARD (Perfect Square)
+           ========================================================================== */
+        #board-wrapper { position: relative; width: 100%; height: 100%; max-width: 100vh; max-height: 100vw; aspect-ratio: 1/1; }
+        
         #board {
             display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr);
-            gap: 2px; width: 100%; height: 100%; background: #222; border: 2px solid #555; padding: 4px;
+            gap: 2px; width: 100%; height: 100%; background: #222; border: 2px solid #00E5FF; padding: 4px; border-radius: 10px;
         }
 
         .space {
             background: #FFF; border: 1px solid #000; color: #000; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center; font-size: clamp(0.6rem, 2vmin, 1rem);
-            font-weight: bold; position: relative;
+            align-items: center; justify-content: center; text-align: center; font-size: clamp(0.5rem, 1.8vmin, 1rem);
+            font-weight: 900; position: relative; border-radius: 4px; box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
         }
-        .s-start { background: #FFC107; }
-        .s-jaap { background: #FF1744; color: #FFF; }
-        .s-event { color: #FF1744; font-size: clamp(1rem, 3vmin, 1.5rem); }
-
-        .token-container {
-            position: absolute; bottom: 2px; display: flex; flex-wrap: wrap; justify-content: center; width: 100%; gap: 2px;
-        }
-        .token {
-            width: clamp(15px, 3.5vmin, 25px); height: clamp(15px, 3.5vmin, 25px); border-radius: 50%;
-            border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; justify-content: center;
-            font-size: clamp(0.7rem, 2vmin, 1rem); z-index: 10;
-        }
-
-        /* UI ELEMENTS */
-        .panel { background: #1a2332; border: 1px solid #333; border-radius: 8px; padding: 10px; }
-        #hud { display: flex; flex-wrap: wrap; gap: 5px; height: 40%; overflow-y: auto; }
-        .player-card { flex: 1; min-width: 45%; background: #000; border-top: 5px solid; padding: 10px; text-align: center; border-radius: 5px; }
-        .player-card.active { border: 2px solid #FFC107; border-top: 5px solid #FFC107; background: #332a00; }
         
-        #controls { height: 60%; display: flex; flex-direction: column; align-items: center; }
-        #log { flex: 1; width: 100%; background: #000; color: #00E676; font-family: monospace; overflow-y: auto; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px;}
-        .log-entry { margin-bottom: 5px; border-bottom: 1px dotted #333; padding-bottom: 5px; }
+        .s-start { background: #FFC107; font-size: clamp(0.7rem, 2vmin, 1.2rem); }
+        .s-jaap { background: #FF1744; color: #FFF; border-radius: 50%; aspect-ratio: 1/1;}
+        .s-event { color: #FF1744; font-size: clamp(1rem, 3vmin, 1.5rem); }
+        .s-market { background: #D500F9; color: #FFF; }
+
+        .token-container { position: absolute; bottom: 2px; display: flex; flex-wrap: wrap; justify-content: center; width: 100%; gap: 1px; z-index: 20;}
+        
+        .token {
+            width: clamp(15px, 3.5vmin, 28px); height: clamp(15px, 3.5vmin, 28px); border-radius: 50%;
+            border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; justify-content: center;
+            font-size: clamp(0.7rem, 2vmin, 1.2rem); box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            transition: transform 0.3s ease;
+        }
+
+        /* ==========================================================================
+           4. UI PANELS
+           ========================================================================== */
+        .panel { background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 1vmin; }
+        
+        #hud { display: flex; flex-wrap: wrap; gap: 1vmin; height: 45%; overflow-y: auto; align-content: flex-start;}
+        .player-card { 
+            flex: 1; min-width: 45%; background: rgba(0,0,0,0.5); border-top: 4px solid; 
+            padding: 1vmin; text-align: center; border-radius: 5px; position: relative;
+        }
+        .player-card.active { border: 2px solid #FFC107; border-top: 4px solid #FFC107; background: rgba(255,193,7,0.1); }
+        .ally-badge { background: #222; color: #00E5FF; font-size: clamp(0.6rem, 1.5vmin, 0.9rem); padding: 2px 5px; border-radius: 4px; margin-top: 5px;}
+        
+        #controls { height: 55%; display: flex; flex-direction: column; align-items: center; }
+        #turn-indicator { margin: 0 0 1vmin 0; font-size: clamp(1.5rem, 3.5vmin, 2rem); font-weight: bold; text-align: center; }
+        
+        #log { 
+            flex: 1; width: 100%; background: #000; color: #FFF; font-family: monospace; 
+            overflow-y: auto; padding: 1vmin; border-radius: 5px; margin-top: 1vmin; font-size: clamp(0.8rem, 2vmin, 1.1rem);
+            border: 1px solid #333;
+        }
+        .log-entry { border-bottom: 1px dotted #333; padding: 4px 0; }
 
         .btn {
-            background: #FFC107; border: none; padding: 15px; font-size: 20px; font-weight: bold;
-            border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 10px; text-transform: uppercase;
+            background: #FFC107; border: 2px solid #FFF; padding: 1.5vmin; font-size: clamp(1.2rem, 3vmin, 1.8rem); 
+            font-weight: 900; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 1vmin; 
+            text-transform: uppercase; color: #000; transition: 0.1s;
         }
-        .btn:active { transform: scale(0.98); }
-        .btn:disabled { background: #555; cursor: not-allowed; color: #888; }
+        .btn:active { transform: scale(0.95); }
+        .btn:disabled { background: #555; cursor: not-allowed; color: #888; border-color: #555; transform: none;}
+        .btn-red { background: #FF1744; color: #FFF; }
+        .btn-cyan { background: #00E5FF; color: #000; }
 
-        /* BULLETPROOF MODAL */
+        /* ==========================================================================
+           5. BULLETPROOF SYNCHRONOUS MODAL
+           ========================================================================== */
         #simple-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 2vmin;
         }
         .modal-content {
-            background: #222; border: 3px solid #00E5FF; padding: 30px; text-align: center; border-radius: 10px; max-width: 500px; width: 100%;
+            background: #111; border: 3px solid #00E5FF; padding: 4vmin; text-align: center; border-radius: 10px; max-width: 600px; width: 100%;
         }
-        .modal-content h2 { color: #FFC107; margin-top: 0; }
-        .modal-content p { font-size: 18px; margin-bottom: 20px; }
-        #modal-btn-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .modal-content h2 { color: #FFC107; font-size: clamp(1.8rem, 4.5vmin, 3rem); margin: 0 0 2vmin 0; text-transform: uppercase; }
+        .modal-content p { font-size: clamp(1.1rem, 3vmin, 1.5rem); margin-bottom: 3vmin; line-height: 1.4; }
+        #modal-btn-container { display: flex; gap: 1vmin; justify-content: center; flex-wrap: wrap; }
+
+        /* FLOATING TEXT FX */
+        .float-text {
+            position: absolute; font-size: 24px; font-weight: bold; pointer-events: none;
+            animation: floatUp 1s ease-out forwards; z-index: 100; text-shadow: 2px 2px 0 #000;
+        }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
     </style>
 </head>
 <body>
@@ -98,13 +133,12 @@
         </div>
 
         <div id="right-col">
-            <div id="hud" class="panel">
-                </div>
+            <div id="hud" class="panel"></div>
             
             <div id="controls" class="panel">
-                <h2 id="turn-indicator" style="margin: 0 0 10px 0; text-align: center;">Game Start</h2>
-                <div id="dice-display" style="font-size: 40px; margin-bottom: 10px;">🎲</div>
-                <button id="btn-roll" class="btn">ROLL DICE</button>
+                <div id="turn-indicator">Game Start</div>
+                <div style="font-size: clamp(0.9rem, 2vmin, 1.2rem); margin-bottom: 1vmin; color: #888;">Turn <span id="turn-counter">1</span>/40</div>
+                <button id="btn-roll" class="btn">ROLL 🎲</button>
                 <div id="log"></div>
             </div>
         </div>
@@ -113,15 +147,14 @@
     <div id="simple-modal">
         <div class="modal-content">
             <h2 id="sm-title">Title</h2>
-            <p id="sm-text">Description</p>
-            <div id="modal-btn-container">
-                </div>
+            <p id="sm-text" id="sm-text">Description</p>
+            <div id="modal-btn-container"></div>
         </div>
     </div>
 
 <script>
     /* =========================================================================
-       1. GAME DATA & RULES
+       1. GAME DATA & ADVANCED RULES
        ========================================================================= */
     const gridMap = [
         {c:1, r:1}, {c:2, r:1}, {c:3, r:1}, {c:4, r:1}, {c:5, r:1}, {c:6, r:1}, {c:7, r:1}, {c:8, r:1}, {c:9, r:1}, {c:10, r:1}, 
@@ -130,47 +163,56 @@
         {c:1, r:9}, {c:1, r:8}, {c:1, r:7}, {c:1, r:6}, {c:1, r:5}, {c:1, r:4}, {c:1, r:3}, {c:1, r:2} 
     ];
 
+    // Advanced Event Deck
     const Events = [
-        "Glacier Collapse! Everyone loses 1 🌰.",
-        "Golden Find! Collect 2 🌰.",
-        "Avalanche! Move back 3 spaces.",
-        "Ice Slide! Move forward to a Free Space."
+        { desc: "Glacier Collapse! Everyone loses 1 🌰.", f: (p) => { state.players.forEach(pl => loseAcorns(pl, 1)); } },
+        { desc: "Golden Find! Collect 2 🌰.", f: (p) => gainAcorns(p, 2) },
+        { desc: "Avalanche! Move back 3 spaces.", f: (p) => moveToken(p, -3, false) }, // False prevents secondary events triggering endlessly
+        { desc: "Ice Slide! Move straight to the next Free Space.", f: (p) => jumpTo(p, "Free space") },
+        { desc: "Lost in the Tundra. Go back to Start.", f: (p) => teleport(p, 0) },
+        { desc: "Ancient Tree! Collect 4 🌰.", f: (p) => gainAcorns(p, 4) },
+        { desc: "Thief! Steal 1 🌰 from the player with the most acorns.", f: (p) => stealFromRichest(p) }
     ];
 
-    // The Space Logic: Keep it simple. It either runs an action or does nothing.
+    const AlliesList = [
+        { name: "Mammoth", effect: "Ignores Jaap Skips" },
+        { name: "Caveman", effect: "+1 to all Dice Rolls" },
+        { name: "Squirrel", effect: "Gains +1 🌰 on Free Spaces" }
+    ];
+
+    // Board Configuration
     const SpaceData = [
         { t: "START", class: "s-start" }, 
         { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) },
+        { t: "Market", class: "s-market", action: (p) => showMarket(p) }, 
         { t: "Go Start", action: (p) => teleport(p, 0) }, 
-        { t: "+1 Roll", action: (p) => { showMsg("EXTRA ROLL", "You get to roll again!", () => rollDice(p)); return true; /* true means don't pass turn */ } }, 
+        { t: "+1 Roll", action: (p) => { showMsg("EXTRA ROLL", "You get to roll again!", () => rollDice(p)); return true; } }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
-        { t: "+3 Spaces", action: (p) => moveToken(p, 3) }, 
-        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
+        { t: "+3 Spaces", action: (p) => moveToken(p, 3, true) }, 
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => triggerJaap(p) }, 
         { t: "Free space" }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
         { t: "Jaap (+2🌰)", action: (p) => { gainAcorns(p, 2); jumpTo(p, "Jaap STOP"); return true; } }, 
-        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
-        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
+        { t: "Market", class: "s-market", action: (p) => showMarket(p) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
         { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
-        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => triggerJaap(p) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
         { t: "Free space" }, 
         { t: "Bridge" }, 
         { t: "Free space" },
-        { t: "-4 Spaces", action: (p) => moveToken(p, -4) }, 
+        { t: "-4 Spaces", action: (p) => moveToken(p, -4, true) }, 
         { t: "-2 🌰", action: (p) => loseAcorns(p, 2) }, 
-        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
-        { t: "-8 Spaces", action: (p) => moveToken(p, -8) }, 
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => triggerJaap(p) }, 
+        { t: "-8 Spaces", action: (p) => moveToken(p, -8, true) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) },
         { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
         { t: "End", class: "s-jaap" },
-        // Pad out the rest to 36 spaces to complete the square board
         { t: "Free space" }, { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) },
-        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } },
-        { t: "Free space" }, { t: "Bridge" }, { t: "Free space" }, { t: "+2 🌰", action: (p) => gainAcorns(p, 2) }
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => triggerJaap(p) },
+        { t: "Free space" }, { t: "Market", class: "s-market", action: (p) => showMarket(p) }, { t: "Free space" }, { t: "+2 🌰", action: (p) => gainAcorns(p, 2) }
     ];
 
     /* =========================================================================
@@ -179,72 +221,82 @@
     const colors = ['#F44336', '#4CAF50', '#2196F3', '#FFEB3B'];
     let state = {
         players: [
-            { id: 0, name: "Player 1", color: colors[0], pos: 0, acorns: 4, laps: 0, skip: false },
-            { id: 1, name: "Player 2", color: colors[1], pos: 0, acorns: 4, laps: 0, skip: false },
-            { id: 2, name: "Player 3", color: colors[2], pos: 0, acorns: 4, laps: 0, skip: false },
-            { id: 3, name: "Player 4", color: colors[3], pos: 0, acorns: 4, laps: 0, skip: false }
+            { id: 0, name: "Player 1", color: colors[0], pos: 0, acorns: 4, laps: 0, skip: false, ally: null },
+            { id: 1, name: "Player 2", color: colors[1], pos: 0, acorns: 4, laps: 0, skip: false, ally: null },
+            { id: 2, name: "Player 3", color: colors[2], pos: 0, acorns: 4, laps: 0, skip: false, ally: null },
+            { id: 3, name: "Player 4", color: colors[3], pos: 0, acorns: 4, laps: 0, skip: false, ally: null }
         ],
-        turn: 0
+        turn: 0,
+        totalTurns: 1,
+        suddenDeath: false
     };
 
     function initGame() {
         const board = document.getElementById('board');
         for (let i = 0; i < 36; i++) {
-            let sp = SpaceData[i] || { t: "Free space" }; // Fallback
+            let sp = SpaceData[i] || { t: "Free space" }; 
             let div = document.createElement('div');
             div.className = `space ${sp.class || ''}`;
             div.id = `space-${i}`;
-            div.style.gridColumn = gridMap[i].c;
-            div.style.gridRow = gridMap[i].r;
+            div.style.gridColumn = gridMap[i].c; div.style.gridRow = gridMap[i].r;
             div.innerHTML = `<span>${sp.t}</span><div id="tc-${i}" class="token-container"></div>`;
             board.appendChild(div);
         }
         
         state.players.forEach(p => drawToken(p));
-        updateHUD();
-        startTurn();
+        updateHUD(); startTurn();
     }
 
     /* =========================================================================
-       3. CORE LOGIC
+       3. CORE LOGIC & UI UPDATES
        ========================================================================= */
     function drawToken(p) {
-        let old = document.getElementById(`tok-${p.id}`);
-        if (old) old.remove();
+        let old = document.getElementById(`tok-${p.id}`); if (old) old.remove();
         let tok = document.createElement('div');
-        tok.id = `tok-${p.id}`;
-        tok.className = 'token';
-        tok.style.background = p.color;
-        tok.innerText = p.name.charAt(0);
+        tok.id = `tok-${p.id}`; tok.className = 'token';
+        tok.style.background = p.color; tok.innerText = p.name.charAt(0);
         document.getElementById(`tc-${p.pos}`).appendChild(tok);
     }
 
     function updateHUD() {
-        const hud = document.getElementById('hud');
-        hud.innerHTML = '';
+        const hud = document.getElementById('hud'); hud.innerHTML = '';
         state.players.forEach((p, i) => {
             hud.innerHTML += `
                 <div class="player-card ${i === state.turn ? 'active' : ''}" style="border-top-color:${p.color};">
-                    <div style="color:${p.color}; font-weight:bold;">${p.name}</div>
-                    <div style="font-size: 24px; color: #FFC107; margin: 5px 0;">${p.acorns} 🌰</div>
-                    <div>Laps: ${p.laps}/3</div>
+                    <div style="color:${p.color}; font-weight:900; font-size: 1.1rem;">${p.name}</div>
+                    <div style="font-size: clamp(1.5rem, 4vmin, 2.2rem); color: #FFC107; margin: 2px 0; font-weight:bold;">${p.acorns} 🌰</div>
+                    <div style="font-size: 0.9rem;">Laps: ${p.laps}/3</div>
+                    <div class="ally-badge">${p.ally ? `🤝 ${p.ally.name}` : 'No Ally'}</div>
                 </div>`;
         });
+        document.getElementById('turn-counter').innerText = state.totalTurns;
     }
 
     function log(msg) {
         const l = document.getElementById('log');
-        l.innerHTML = `<div class="log-entry">${msg}</div>` + l.innerHTML;
+        let t = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        l.innerHTML = `<div class="log-entry"><span style="color:#888;">[${t}]</span> ${msg}</div>` + l.innerHTML;
     }
 
-    // A foolproof modal to pause the game safely
+    function showFloatText(p, text, color) {
+        let tok = document.getElementById(`tok-${p.id}`);
+        if(!tok) return;
+        let rect = tok.getBoundingClientRect();
+        let f = document.createElement('div');
+        f.className = 'float-text'; f.innerText = text; f.style.color = color;
+        f.style.left = `${rect.left}px`; f.style.top = `${rect.top}px`;
+        document.body.appendChild(f);
+        setTimeout(() => f.remove(), 1000);
+    }
+
+    // BULLETPROOF MODAL ENGINE (Waits for user click)
     function showMsg(title, text, callback) {
         document.getElementById('simple-modal').style.display = 'flex';
         document.getElementById('sm-title').innerText = title;
-        document.getElementById('sm-text').innerText = text;
+        document.getElementById('sm-text').innerHTML = text;
         
         let btnContainer = document.getElementById('modal-btn-container');
-        btnContainer.innerHTML = `<button class="btn" id="modal-ok-btn" style="width: auto; padding: 10px 30px;">OK</button>`;
+        btnContainer.innerHTML = `<button class="btn btn-cyan" id="modal-ok-btn" style="width: auto; padding: 1.5vmin 4vmin;">CONTINUE</button>`;
         
         document.getElementById('modal-ok-btn').onclick = () => {
             document.getElementById('simple-modal').style.display = 'none';
@@ -252,14 +304,48 @@
         };
     }
 
+    // MULTI-BUTTON MODAL
+    function showChoice(title, text, buttons) {
+        document.getElementById('simple-modal').style.display = 'flex';
+        document.getElementById('sm-title').innerText = title;
+        document.getElementById('sm-text').innerHTML = text;
+        
+        let btnContainer = document.getElementById('modal-btn-container');
+        btnContainer.innerHTML = '';
+        buttons.forEach(b => {
+            let btn = document.createElement('button');
+            btn.className = `btn ${b.class || ''}`; btn.innerText = b.text;
+            btn.style.width = 'auto'; btn.style.padding = '1.5vmin 3vmin';
+            btn.onclick = () => {
+                document.getElementById('simple-modal').style.display = 'none';
+                b.action();
+            };
+            btnContainer.appendChild(btn);
+        });
+    }
+
     /* =========================================================================
-       4. TURN ENGINE
+       4. TURN ENGINE & SUDDEN DEATH
        ========================================================================= */
     function startTurn() {
         let p = state.players[state.turn];
         document.getElementById('turn-indicator').innerText = `${p.name}'s Turn`;
         document.getElementById('turn-indicator').style.color = p.color;
         
+        // 40-TURN SUDDEN DEATH TRIGGER
+        if (state.totalTurns > 40 && !state.suddenDeath) {
+            state.suddenDeath = true;
+            document.body.classList.add('sudden-death');
+            showMsg("💥 METEOR SHOWER 💥", "40 Turns reached! Sudden Death activated. Everyone loses 1 🌰 at the start of their turn!", () => processTurnStart(p));
+            return;
+        }
+
+        processTurnStart(p);
+    }
+
+    function processTurnStart(p) {
+        if (state.suddenDeath) { loseAcorns(p, 1); }
+
         if (p.skip) {
             p.skip = false;
             document.getElementById('btn-roll').disabled = true;
@@ -273,37 +359,77 @@
 
     document.getElementById('btn-roll').addEventListener('click', () => {
         let p = state.players[state.turn];
-        document.getElementById('btn-roll').disabled = true; // Prevent double click
+        document.getElementById('btn-roll').disabled = true; 
         rollDice(p);
     });
 
     function rollDice(p) {
         let roll = Math.floor(Math.random() * 6) + 1;
-        document.getElementById('dice-display').innerText = `🎲 ${roll}`;
-        log(`🎲 ${p.name} rolled a ${roll}.`);
-        moveToken(p, roll);
+        
+        // Ally Buff: Caveman
+        if (p.ally && p.ally.name === "Caveman") {
+            roll += 1;
+            log(`🦴 Caveman ally adds +1 to the roll!`);
+        }
+
+        log(`🎲 ${p.name} moves ${roll} spaces.`);
+        moveToken(p, roll, true);
     }
 
-    function moveToken(p, spaces) {
-        let oldPos = p.pos;
+    /* =========================================================================
+       5. MOVEMENT, COMBAT, AND ACTIONS
+       ========================================================================= */
+    function moveToken(p, spaces, evaluateAfter = true) {
         p.pos += spaces;
 
         // Lap logic
         if (p.pos >= 36) {
             p.pos = p.pos - 36;
             p.laps++;
-            p.acorns += 2;
+            gainAcorns(p, 2);
             log(`🏁 ${p.name} completed a lap! (+2 🌰)`);
             if(p.laps >= 3) {
-                showMsg("WINNER!", `${p.name} finished 3 laps and wins the game!`, () => location.reload());
+                showMsg("🏆 WINNER!", `<span style="color:${p.color}; font-weight:bold;">${p.name}</span> finished 3 laps and wins the game with ${p.acorns} 🌰!`, () => location.reload());
                 return;
             }
         } else if (p.pos < 0) {
-            p.pos = 36 + p.pos; // Move backwards wrap around
+            p.pos = 36 + p.pos; 
         }
 
         drawToken(p);
-        evaluateSpace(p);
+
+        // Duel Logic: Are they landing on someone?
+        let enemy = state.players.find(o => o.id !== p.id && o.pos === p.pos);
+        if (enemy && evaluateAfter) {
+            log(`⚔️ ${p.name} landed on ${enemy.name}! DUEL INITIATED!`);
+            handleDuel(p, enemy, () => {
+                evaluateSpace(p); // Evaluate the space AFTER the duel
+            });
+        } else if (evaluateAfter) {
+            evaluateSpace(p);
+        } else {
+            passTurn();
+        }
+    }
+
+    function handleDuel(attacker, defender, callback) {
+        let r1 = Math.floor(Math.random() * 6) + 1;
+        let r2 = Math.floor(Math.random() * 6) + 1;
+        
+        // Re-roll ties
+        while(r1 === r2) { r1 = Math.floor(Math.random() * 6) + 1; r2 = Math.floor(Math.random() * 6) + 1; }
+
+        let winner = r1 > r2 ? attacker : defender;
+        let loser = r1 > r2 ? defender : attacker;
+
+        showMsg("⚔️ COMBAT ARENA ⚔️", 
+            `${attacker.name} rolled a <b>${r1}</b>.<br>${defender.name} rolled a <b>${r2}</b>.<br><br>
+            <span style="color:${winner.color}; font-weight:bold; font-size:1.5em;">${winner.name} Wins!</span><br>Steals 1 🌰.`, 
+        () => {
+            loseAcorns(loser, 1);
+            gainAcorns(winner, 1);
+            callback();
+        });
     }
 
     function teleport(p, spaceIndex) {
@@ -323,69 +449,122 @@
         else passTurn();
     }
 
-    /* =========================================================================
-       5. SPACE ACTIONS
-       ========================================================================= */
     function evaluateSpace(p) {
         let sp = SpaceData[p.pos] || { t: "Free space" };
         log(`📍 ${p.name} landed on: ${sp.t}`);
+        
+        // Ally Buff: Squirrel
+        if (sp.t.includes("Free space") && p.ally && p.ally.name === "Squirrel") {
+            log(`🐿️ Squirrel found a nut on a free space!`);
+            gainAcorns(p, 1);
+        }
+
         updateHUD();
 
-        // If the space has an action, run it. 
         if (sp.action) {
-            let dontPassTurn = sp.action(p); 
-            // If the action handles passing the turn itself (like opening a modal), it returns true.
-            // Otherwise, we pass the turn automatically.
-            if (!dontPassTurn) {
-                setTimeout(passTurn, 800);
+            let requiresClickToPass = sp.action(p); 
+            if (!requiresClickToPass) {
+                passTurn();
             }
         } else {
-            // Boring space. Just pass the turn after a brief pause so they see they landed.
-            setTimeout(passTurn, 800);
+            passTurn();
         }
     }
 
+    /* =========================================================================
+       6. SPECIFIC ACTION FUNCTIONS
+       ========================================================================= */
     function gainAcorns(p, amt) {
         p.acorns += amt;
+        showFloatText(p, `+${amt}`, '#00E676');
         log(`💰 ${p.name} got ${amt} 🌰.`);
         updateHUD();
     }
 
     function loseAcorns(p, amt) {
-        if(p.acorns < amt) amt = p.acorns;
-        p.acorns -= amt;
-        log(`🔻 ${p.name} lost ${amt} 🌰.`);
+        let loss = Math.min(p.acorns, amt);
+        p.acorns -= loss;
+        if(loss > 0) showFloatText(p, `-${loss}`, '#FF1744');
+        log(`🔻 ${p.name} lost ${loss} 🌰.`);
         updateHUD();
     }
 
+    function triggerJaap(p) {
+        if (p.ally && p.ally.name === "Mammoth") {
+            showMsg("MAMMOTH STRENGTH", "Your Mammoth ally pushed your broken vehicle out of the ice! You do NOT skip a turn.", passTurn);
+        } else {
+            p.skip = true;
+            showMsg("JAAP STOP", "Your vehicle broke down in the ice. You will skip your next turn.", passTurn);
+        }
+        return true;
+    }
+
     function triggerEvent(p) {
-        let evText = Events[Math.floor(Math.random() * Events.length)];
-        log(`📜 Event: ${evText}`);
-        
-        // Execute simple logic based on text to keep it foolproof
-        showMsg("EVENT DRAWN", evText, () => {
-            if (evText.includes("Everyone loses")) {
-                state.players.forEach(pl => { if(pl.acorns > 0) pl.acorns--; });
-            } else if (evText.includes("Collect 2")) {
-                p.acorns += 2;
-            } else if (evText.includes("Move back 3")) {
-                moveToken(p, -3); return; // moveToken calls evaluateSpace which handles passing turn
-            } else if (evText.includes("Free Space")) {
-                jumpTo(p, "Free space"); return; // jumpTo handles passing turn
+        let ev = Events[Math.floor(Math.random() * Events.length)];
+        log(`📜 Event Drawn: ${ev.desc}`);
+        showMsg("EVENT DRAWN", ev.desc, () => {
+            ev.f(p);
+            // Some events handle passing turn themselves (like move/teleport).
+            // For instantaneous events (like adding acorns), we must call passTurn.
+            if(ev.desc.includes("Collect") || ev.desc.includes("loses 1") || ev.desc.includes("Steal")) {
+                passTurn();
             }
-            updateHUD();
-            passTurn();
         });
-        return true; // Tells evaluateSpace that we are handling the turn pass
+        return true; 
+    }
+
+    function showMarket(p) {
+        if (p.acorns < 3) {
+            showMsg("VILLAGER MARKET", "Allies cost 3 🌰 to hire. You do not have enough.", passTurn);
+            return true;
+        }
+
+        // Pick 2 random available allies
+        let avail = AlliesList.filter(a => !state.players.find(pl => pl.ally && pl.ally.name === a.name));
+        if (avail.length === 0) {
+            showMsg("VILLAGER MARKET", "There are no more allies available in the village.", passTurn);
+            return true;
+        }
+
+        let choices = avail.sort(() => 0.5 - Math.random()).slice(0, 2);
+        let buttons = choices.map(c => ({
+            text: `Hire ${c.name} (3🌰)\n${c.effect}`,
+            class: "btn-cyan",
+            action: () => {
+                loseAcorns(p, 3);
+                p.ally = c;
+                log(`🤝 ${p.name} hired the ${c.name}!`);
+                updateHUD();
+                passTurn();
+            }
+        }));
+        buttons.push({ text: "Leave Market", action: passTurn });
+
+        showChoice("VILLAGER MARKET", "Hire an Ally for 3 🌰 to gain permanent buffs!", buttons);
+        return true;
+    }
+
+    function stealFromRichest(p) {
+        // Find player with most acorns who isn't current player
+        let others = state.players.filter(pl => pl.id !== p.id);
+        others.sort((a,b) => b.acorns - a.acorns);
+        let richest = others[0];
+        
+        if (richest.acorns > 0) {
+            loseAcorns(richest, 1);
+            gainAcorns(p, 1);
+            log(`🦝 ${p.name} stole 1 🌰 from ${richest.name}!`);
+        }
     }
 
     function passTurn() {
         state.turn = (state.turn + 1) % state.players.length;
+        if (state.turn === 0) state.totalTurns++; // Increment total turns when a full round completes
         updateHUD();
         startTurn();
     }
 
-    // Start everything
+    // Start
     window.onload = initGame;
 
 </script>
