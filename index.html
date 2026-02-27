@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ICE AGE: THE BOARD GAME</title>
+    <title>ICE AGE: THE BOARD GAME (ULTIMATE EDITION)</title>
     <style>
         /* ==========================================================================
            1. STRICT IFRAME/GITHUB PAGES LAYOUT ENGINE (Zero Scroll Guarantee)
@@ -16,10 +16,7 @@
             --glass-border: rgba(255, 255, 255, 0.2);
         }
 
-        /* CRITICAL SIZING FIX: 
-           Using 100% instead of 100vh prevents Google Sites iframes from cutting off the bottom. 
-           Absolute positioning locks the game to the exact pixel bounds of the window.
-        */
+        /* CRITICAL SIZING FIX: Absolute positioning locks the game to the exact pixel bounds */
         html, body { 
             width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
             box-sizing: border-box; touch-action: none; font-family: 'Nunito', sans-serif; 
@@ -28,7 +25,7 @@
 
         * { box-sizing: inherit; user-select: none; -webkit-tap-highlight-color: transparent; }
 
-        /* Smooth background for performance */
+        /* Smooth background for Chromebook performance */
         #bg-canvas { 
             position: absolute; inset: 0; z-index: -10; 
             background: radial-gradient(circle at center, #003a5c 0%, #0d1321 100%); 
@@ -47,21 +44,23 @@
         /* ==========================================================================
            2. SETUP SCREEN (Perfectly Centered & Scaled)
            ========================================================================== */
-        #setup-container { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.3s ease; padding: 2vmin; background: rgba(13, 19, 33, 0.98); }
-        #setup-screen { width: 100%; max-width: 650px; padding: 4vmin; text-align: center; display: flex; flex-direction: column; gap: 2vmin; border: 2px solid var(--cyan); }
+        #setup-container { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s ease; padding: 2vmin; background: rgba(13, 19, 33, 0.98); }
+        #setup-screen { width: 100%; max-width: 700px; padding: 4vmin; text-align: center; display: flex; flex-direction: column; gap: 2.5vmin; border: 2px solid var(--cyan); box-shadow: 0 0 30px rgba(0,229,255,0.2); }
         
-        .title-text { color: var(--cyan); font-size: clamp(2.5rem, 8vmin, 5rem); margin: 0; font-family: 'Carter One'; text-shadow: 2px 2px 0px #000; }
-        .subtitle-text { color: var(--gold); font-size: clamp(1.2rem, 3.5vmin, 2rem); margin: 0 0 2vmin 0; letter-spacing: 0.5vmin; text-transform: uppercase;}
+        .title-text { color: var(--cyan); font-size: clamp(3rem, 10vmin, 6rem); margin: 0; font-family: 'Carter One'; text-shadow: 4px 4px 0px #000; letter-spacing: 2px;}
+        .subtitle-text { color: var(--gold); font-size: clamp(1.2rem, 3.5vmin, 2rem); margin: 0 0 2vmin 0; letter-spacing: 0.5vmin; text-transform: uppercase; font-weight: 900;}
 
-        .setup-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 1.5vmin; border-radius: 1vmin; border: 1px solid var(--glass-border); }
-        .setup-row input { font-size: clamp(1rem, 2.5vmin, 1.5rem); padding: 1vmin; width: 70%; background: #000; color: #FFF; border: 1px solid var(--cyan); border-radius: 0.5vmin; font-weight: bold; outline: none; text-align: center;}
-        .player-color-dot { width: 4vmin; height: 4vmin; border-radius: 50%; border: 2px solid #FFF; }
+        .setup-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 1.5vmin 2.5vmin; border-radius: 1vmin; border: 1px solid var(--glass-border); transition: 0.3s;}
+        .setup-row:focus-within { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+        .setup-row input { font-size: clamp(1.2rem, 3vmin, 1.8rem); padding: 1vmin; width: 70%; background: #000; color: #FFF; border: 1px solid var(--cyan); border-radius: 0.5vmin; font-weight: bold; outline: none; text-align: center;}
+        .player-color-dot { width: 5vmin; height: 5vmin; border-radius: 50%; border: 3px solid #FFF; box-shadow: 0 0 10px rgba(0,0,0,0.8);}
 
-        .btn { background: var(--gold); border: 2px solid #FFF; padding: 1.5vmin 3vmin; font-size: clamp(1rem, 3vmin, 1.5rem); font-family: 'Carter One'; cursor: pointer; border-radius: 1vmin; color: #000; text-transform: uppercase; transition: transform 0.1s; width: 100%; will-change: transform; }
+        .btn { background: var(--gold); border: 2px solid #FFF; padding: 2vmin 4vmin; font-size: clamp(1.2rem, 4vmin, 2rem); font-family: 'Carter One'; cursor: pointer; border-radius: 1vmin; color: #000; text-transform: uppercase; transition: transform 0.1s; width: 100%; will-change: transform; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
         .btn:active { transform: scale(0.95); }
         .btn-cyan { background: var(--cyan); }
         .btn-red { background: var(--red); color: white; }
-        select.btn { text-align: center; appearance: none; background: #222; color: #FFF; border-color: var(--cyan);}
+        
+        select.btn { text-align: center; appearance: none; background: #111; color: #FFF; border-color: var(--cyan); padding: 1.5vmin;}
 
         /* ==========================================================================
            3. MASTER GAME LAYOUT (Fluid Flexbox for Landscape/Portrait)
@@ -87,21 +86,28 @@
 
         /* HUD STYLES */
         #hud { display: flex; gap: 1vmin; width: 100%; }
-        .hud-player { flex: 1; min-width: 45%; padding: 1.5vmin; text-align: center; border-radius: 1vmin; display: flex; flex-direction: column; justify-content: center; border-top: 4px solid; background: rgba(0,0,0,0.6);}
-        .hud-player.active { background: rgba(255, 193, 7, 0.15) !important; border: 2px solid var(--gold); }
+        .hud-player { flex: 1; min-width: 45%; padding: 1.5vmin; text-align: center; border-radius: 1vmin; display: flex; flex-direction: column; justify-content: center; border-top: 5px solid; background: rgba(0,0,0,0.7); position: relative;}
+        .hud-player.active { background: rgba(255, 193, 7, 0.15) !important; border: 2px solid var(--gold); border-top: 5px solid var(--gold); box-shadow: 0 0 20px rgba(255,193,7,0.2);}
         .hud-player.eliminated { opacity: 0.3; filter: grayscale(1); }
-        .p-name { font-size: clamp(1rem, 2.5vmin, 1.4rem); font-weight: bold; text-transform: uppercase; } 
-        .p-acorns { font-size: clamp(1.8rem, 5vmin, 3rem); color: var(--gold); font-family: 'Carter One'; display: flex; align-items: center; justify-content: center; gap: 0.5vmin; margin: 0.5vmin 0; }
+        .p-name { font-size: clamp(1rem, 2.5vmin, 1.4rem); font-weight: 900; text-transform: uppercase; text-shadow: 2px 2px 0 #000;} 
+        .p-acorns { font-size: clamp(2rem, 6vmin, 3.5rem); color: var(--gold); font-family: 'Carter One'; display: flex; align-items: center; justify-content: center; gap: 0.5vmin; margin: 0.5vmin 0; text-shadow: 2px 2px 5px rgba(0,0,0,0.9);}
         
         /* CONTROLS STYLES */
-        #controls { display: flex; flex-direction: column; padding: 1.5vmin; align-items: center; background: rgba(0,0,0,0.8); }
-        #turn-indicator { font-size: clamp(1.5rem, 3.5vmin, 2.5rem); margin-bottom: 1vmin; font-family: 'Carter One'; text-align: center; }
+        #controls { display: flex; flex-direction: column; padding: 1.5vmin; align-items: center; background: rgba(0,0,0,0.8); border: 1px solid var(--glass-border);}
+        #turn-indicator { font-size: clamp(1.5rem, 4vmin, 2.5rem); margin-bottom: 1vmin; font-family: 'Carter One'; text-align: center; text-shadow: 2px 2px 0 #000; width: 100%; background: rgba(255,255,255,0.05); border-radius: 1vmin; padding: 1vmin;}
         .control-buttons { display: flex; gap: 1vmin; width: 100%; margin-bottom: 1vmin; }
-        #log { color: #00E676; width: 100%; flex: 1; padding: 1vmin; overflow-y: auto; font-family: monospace; font-size: clamp(0.9rem, 2vmin, 1.2rem); background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 1vmin;}
-        .log-entry { border-bottom: 1px dotted rgba(255,255,255,0.2); padding: 0.8vmin 0; }
+        
+        /* ADVANCED GAME LOG */
+        #log { color: #FFF; width: 100%; flex: 1; padding: 1.5vmin; overflow-y: auto; font-family: monospace; font-size: clamp(0.9rem, 2.2vmin, 1.2rem); background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 1vmin; box-shadow: inset 0 0 15px rgba(0,0,0,0.9);}
+        .log-entry { border-bottom: 1px dotted rgba(255,255,255,0.2); padding: 0.8vmin 0; animation: slideIn 0.3s ease-out; }
+        .log-time { color: #666; margin-right: 5px; }
+        .log-gain { color: var(--gold); font-weight: bold; }
+        .log-lose { color: var(--red); font-weight: bold; }
+        .log-event { color: var(--cyan); font-weight: bold; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
         /* ==========================================================================
-           4. RESPONSIVE GAME BOARD (Perfect Square)
+           4. RESPONSIVE GAME BOARD (Perfect Hollow Square)
            ========================================================================== */
         #board-wrapper { 
             position: relative; width: 100%; height: 100%; 
@@ -112,73 +118,85 @@
         #board { 
             display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); 
             gap: 2px; width: 100%; height: 100%; padding: 4px; position: absolute; 
-            background: rgba(0,0,0,0.4); border-radius: 1.5vmin; border: 2px solid var(--glass-border);
+            background: rgba(0,0,0,0.6); border-radius: 1.5vmin; border: 2px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        #center-island { grid-column: 2 / 10; grid-row: 2 / 10; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 1vmin; overflow: hidden; border: 2px solid rgba(255,255,255,0.2); }
-        .biome { display: flex; align-items: center; justify-content: center; font-family: 'Carter One'; font-size: clamp(1rem, 3vmin, 3rem); color: #FFF; text-align: center; z-index: 1; padding: 2%; line-height: 1.1; }
+        #center-island { grid-column: 2 / 10; grid-row: 2 / 10; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 1vmin; overflow: hidden; border: 2px solid rgba(255,255,255,0.2); box-shadow: inset 0 0 50px rgba(0,0,0,0.9);}
+        .biome { display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Carter One'; font-size: clamp(1.2rem, 3.5vmin, 3.5rem); color: #FFF; text-align: center; z-index: 1; padding: 2%; line-height: 1.1; text-shadow: 3px 3px 5px rgba(0,0,0,0.9);}
         .b-grass { background: #1b5e20; } .b-mtn { background: #37474f; } .b-vill { background: #4e342e; } .b-snow { background: #01579b; }
 
         .space { 
             background: #FFF; border: 1px solid #000; border-radius: 4px; color: #000; font-weight: 900; 
             font-size: clamp(0.4rem, 1.5vmin, 0.9rem); display: flex; flex-direction: column; align-items: center; 
             justify-content: center; text-align: center; padding: 1px; position: relative; line-height: 1; 
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
         }
-        .space.glow { border: 2px solid var(--gold); background: #fffde7; }
+        .space.glow { border: 2px solid var(--gold); background: #fffde7; box-shadow: 0 0 10px var(--gold); z-index: 50;}
         
-        .s-start { background: var(--gold); font-family: 'Carter One'; font-size: clamp(0.7rem, 1.8vmin, 1.2rem); }
-        .s-jaap { background: var(--red); color: #FFF; border-radius: 50%; aspect-ratio: 1/1;}
-        .s-event { color: var(--red); font-size: clamp(1.2rem, 3vmin, 2.5rem); font-family: 'Carter One'; }
+        .s-start { background: var(--gold); font-family: 'Carter One'; font-size: clamp(0.7rem, 2vmin, 1.2rem); text-shadow: 1px 1px 0 #FFF;}
+        .s-jaap { background: var(--red); color: #FFF; border-radius: 50%; aspect-ratio: 1/1; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
+        .s-event { color: var(--red); font-size: clamp(1.5rem, 4vmin, 3rem); font-family: 'Carter One'; text-shadow: 1px 1px 0 #FFF;}
         .s-cyan { background: var(--cyan); }
         .s-end { background: var(--red); font-family: 'Carter One'; color: #FFF; }
 
         .token-container { display: flex; flex-wrap: wrap; gap: 1px; justify-content: center; position: absolute; bottom: 2px; width: 100%; z-index: 20; }
         .token { 
-            width: clamp(12px, 3vmin, 28px); height: clamp(12px, 3vmin, 28px); border-radius: 50%; 
+            width: clamp(14px, 3.5vmin, 30px); height: clamp(14px, 3.5vmin, 30px); border-radius: 50%; 
             border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; 
-            justify-content: center; font-size: clamp(0.5rem, 1.5vmin, 1rem); z-index: 100; 
-            will-change: transform; transition: transform 0.2s linear; box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            justify-content: center; font-size: clamp(0.6rem, 1.8vmin, 1.2rem); z-index: 100; 
+            will-change: transform; transition: transform 0.2s linear; box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+            text-shadow: 1px 1px 2px #000;
         }
 
         /* ==========================================================================
-           5. ACTION BANNER & OVERLAYS
+           5. CINEMATIC ACTION BANNER & OVERLAYS
            ========================================================================== */
-        /* ACTION BANNER - The fix for events not showing properly */
         #action-banner {
             position: fixed; top: 50%; left: 0; width: 100%; transform: translateY(-50%) scaleY(0); 
-            background: rgba(0,0,0,0.95); border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); 
-            color: #FFF; text-align: center; padding: 4vmin; z-index: 999999; 
-            font-family: 'Carter One'; font-size: clamp(2rem, 6vmin, 5rem); 
+            background: rgba(0,0,0,0.95); border-top: 5px solid var(--gold); border-bottom: 5px solid var(--gold); 
+            color: #FFF; text-align: center; padding: 5vmin; z-index: 999999; 
+            font-family: 'Carter One'; font-size: clamp(2.5rem, 8vmin, 6rem); 
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
         #action-banner.active { transform: translateY(-50%) scaleY(1); }
-        #action-desc { font-family: 'Nunito'; font-size: clamp(1rem, 3vmin, 2rem); color: var(--cyan); margin-top: 1vmin;}
+        #action-desc { font-family: 'Nunito'; font-size: clamp(1.2rem, 3.5vmin, 2.5rem); color: var(--cyan); margin-top: 2vmin; font-weight: 900; text-shadow: 2px 2px 0 #000;}
 
-        /* 3D DICE */
-        #dice-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; }
+        /* TRUE 3D DICE */
+        #dice-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; backdrop-filter: blur(5px);}
         #dice-overlay.active { opacity: 1; pointer-events: all; }
 
-        .scene { width: 25vmin; height: 25vmin; perspective: 1000px; }
+        .scene { width: 25vmin; height: 25vmin; perspective: 1200px; }
         .cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; }
-        .cube-face { position: absolute; width: 100%; height: 100%; background: #FFF; border: 4px solid var(--gold); border-radius: 1vmin; display: flex; align-items: center; justify-content: center; font-family: 'Carter One'; font-size: 10vmin; color: #000; backface-visibility: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
+        .cube-face { position: absolute; width: 100%; height: 100%; background: #FFF; border: 5px solid var(--gold); border-radius: 2vmin; display: flex; align-items: center; justify-content: center; font-family: 'Carter One'; font-size: 12vmin; color: #000; backface-visibility: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
         
         .cube-face-1 { transform: rotateY(  0deg) translateZ(12.5vmin); } .cube-face-2 { transform: rotateY( 90deg) translateZ(12.5vmin); } .cube-face-3 { transform: rotateY(180deg) translateZ(12.5vmin); } .cube-face-4 { transform: rotateY(-90deg) translateZ(12.5vmin); } .cube-face-5 { transform: rotateX( 90deg) translateZ(12.5vmin); } .cube-face-6 { transform: rotateX(-90deg) translateZ(12.5vmin); }
 
         /* MODALS */
-        #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 99999; opacity: 0; pointer-events: none; transition: 0.2s; padding: 2vmin; }
+        #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 99999; opacity: 0; pointer-events: none; transition: 0.2s; padding: 2vmin; backdrop-filter: blur(8px);}
         #modal-overlay.active { opacity: 1; pointer-events: all; }
         
-        .modal { padding: 4vmin; text-align: center; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); opacity: 0; transition: 0.2s; background: #111; border: 2px solid var(--cyan); border-radius: 1vmin; }
-        #modal-overlay.active .modal { transform: scale(1); opacity: 1; }
+        .modal { padding: 5vmin; text-align: center; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; transform: scale(0.9) translateY(20px); opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #111; border: 3px solid var(--cyan); border-radius: 2vmin; box-shadow: 0 20px 50px rgba(0,229,255,0.3); }
+        #modal-overlay.active .modal { transform: scale(1) translateY(0); opacity: 1; }
         
-        .modal h2 { font-size: clamp(1.8rem, 5vmin, 3rem); color: var(--gold); margin: 0 0 2vmin 0; font-family: 'Carter One'; }
-        .modal p { font-size: clamp(1rem, 2.5vmin, 1.5rem); margin-bottom: 3vmin; }
-        .modal-btns { display: flex; gap: 1.5vmin; justify-content: center; flex-wrap: wrap; }
+        .modal h2 { font-size: clamp(2rem, 6vmin, 3.5rem); color: var(--gold); margin: 0 0 2.5vmin 0; font-family: 'Carter One'; text-shadow: 2px 2px 0 #000;}
+        .modal p { font-size: clamp(1.2rem, 3vmin, 1.8rem); margin-bottom: 3vmin; font-weight: bold;}
+        .modal-btns { display: flex; gap: 2vmin; justify-content: center; flex-wrap: wrap; }
+
+        /* DUEL ARENA */
+        .duel-arena { display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 3vmin 0; padding: 3vmin; background: #000; border-radius: 2vmin; border: 2px solid var(--red); box-shadow: inset 0 0 30px rgba(255,23,68,0.3);}
+        .duel-player { display: flex; flex-direction: column; align-items: center; width: 40%; }
+        .duel-avatar { width: 12vmin; height: 12vmin; border-radius: 50%; border: 4px solid #FFF; margin-bottom: 1vmin; display: flex; align-items: center; justify-content: center; font-size: 5vmin; font-weight: bold; font-family: 'Carter One'; color: #FFF; box-shadow: 0 10px 20px rgba(0,0,0,0.8);}
+        .vs-text { font-size: 6vmin; color: var(--red); font-family: 'Carter One'; text-shadow: 3px 3px 0 #000; animation: pulse 1s infinite alternate;}
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }
 
         /* PARTICLES */
         #particle-layer { position: fixed; inset: 0; pointer-events: none; z-index: 100000; overflow: hidden; perspective: 1000px; }
-        .acorn-3d { position: absolute; font-size: 8vmin; top:0; left:0; will-change: transform, opacity; z-index: 999999; pointer-events: none; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.8));}
-        .confetti { position: absolute; top:0; left:0; width: 1.5vmin; height: 1.5vmin; z-index: 999999; pointer-events: none; will-change: transform; }
+        .acorn-3d { position: absolute; font-size: 8vmin; top:0; left:0; will-change: transform, opacity; z-index: 999999; pointer-events: none; filter: drop-shadow(0 15px 15px rgba(0,0,0,0.9));}
+        .confetti { position: absolute; top:0; left:0; width: 1.5vmin; height: 1.5vmin; z-index: 999999; pointer-events: none; will-change: transform; box-shadow: 0 0 5px rgba(0,0,0,0.5);}
+        .meteor { position: absolute; top: -50px; width: 10px; height: 10px; background: #FF5722; border-radius: 50%; box-shadow: 0 0 20px #FF5722, 0 0 40px #FFC107; z-index: 14; pointer-events: none; will-change: transform;}
+        .meteor::after { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 100px; background: linear-gradient(to bottom, rgba(255,193,7,1), transparent); transform: translateX(-50%); }
     </style>
 </head>
 <body>
@@ -212,7 +230,7 @@
             </select>
             
             <div id="player-inputs"></div>
-            <button id="btn-start-game" class="btn" style="margin-top: 2vmin;">Deploy Explorers</button>
+            <button id="btn-start-game" class="btn btn-cyan" style="margin-top: 3vmin; font-size: clamp(1.5rem, 5vmin, 2.5rem);">Deploy Explorers</button>
         </div>
     </div>
 
@@ -221,10 +239,10 @@
             <div id="board-wrapper">
                 <div id="board">
                     <div id="center-island">
-                        <div class="biome b-grass">GRASSY PLAINS</div>
-                        <div class="biome b-mtn">MOUNTAINS</div>
-                        <div class="biome b-vill">VILLAGE</div>
-                        <div class="biome b-snow">SNOWY TUNDRA</div>
+                        <div class="biome b-grass">GRASSY<br>PLAINS</div>
+                        <div class="biome b-mtn">FROZEN<br>PEAKS</div>
+                        <div class="biome b-vill">ANCIENT<br>VILLAGE</div>
+                        <div class="biome b-snow">SNOWY<br>TUNDRA</div>
                     </div>
                 </div>
             </div>
@@ -235,10 +253,11 @@
             <div id="controls" class="glass-panel">
                 <div id="turn-indicator">Player's Turn</div>
                 <div class="control-buttons">
-                    <button id="btn-roll" class="btn" style="flex: 2; font-size: clamp(1.8rem, 4vmin, 2.5rem);">ROLL 🎲</button>
+                    <button id="btn-roll" class="btn" style="flex: 2; font-size: clamp(2rem, 5vmin, 3rem); padding: 2.5vmin;">ROLL 🎲</button>
                 </div>
                 <div class="control-buttons">
-                    <button id="btn-rules" class="btn btn-cyan" style="flex: 1; font-size: clamp(1rem, 2vmin, 1.2rem);">RULES</button>
+                    <button id="btn-rules" class="btn btn-cyan" style="flex: 1; font-size: clamp(1rem, 2.5vmin, 1.2rem);">RULES</button>
+                    <button id="btn-audio" class="btn btn-purple" style="flex: 1; font-size: clamp(1rem, 2.5vmin, 1.2rem);">MUTE</button>
                 </div>
                 <div id="log"></div>
             </div>
@@ -255,11 +274,14 @@
 
 <script>
     /* =========================================================================
-       MODULE 1: AUDIO ENGINE
+       MODULE 1: AUDIO ENGINE & SETTINGS
        ========================================================================= */
+    const Settings = { muted: false, isSuddenDeath: false };
+
     const AudioEngine = {
         ctx: new (window.AudioContext || window.webkitAudioContext)(),
         playTone: function(freq, type, duration, volMod=1) {
+            if(Settings.muted) return;
             try {
                 let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
                 osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
@@ -269,13 +291,20 @@
                 osc.start(); osc.stop(this.ctx.currentTime + duration);
             } catch(e) {}
         },
-        sfxCoin: function() { this.playTone(800, 'square', 0.1, 0.3); setTimeout(() => this.playTone(1200, 'square', 0.15, 0.3), 50); },
-        sfxLose: function() { this.playTone(200, 'sawtooth', 0.2, 0.4); },
+        sfxCoin: function() { this.playTone(800, 'square', 0.1, 0.4); setTimeout(() => this.playTone(1200, 'square', 0.15, 0.4), 50); },
+        sfxLose: function() { this.playTone(200, 'sawtooth', 0.2, 0.5); },
         sfxJump: function() { this.playTone(400, 'sine', 0.1, 0.2); },
-        sfxHurt: function() { this.playTone(100, 'square', 0.3, 0.5); },
-        sfxDiceTick: function() { this.playTone(900, 'triangle', 0.05, 0.1); },
-        sfxWin: function() { this.playTone(400, 'square', 0.2, 0.5); setTimeout(() => this.playTone(500, 'square', 0.2, 0.5), 200); setTimeout(() => this.playTone(600, 'square', 0.4, 0.5), 400); }
+        sfxHurt: function() { this.playTone(100, 'square', 0.3, 0.6); },
+        sfxDiceTick: function() { this.playTone(900, 'triangle', 0.05, 0.2); },
+        sfxWin: function() { this.playTone(400, 'square', 0.2, 0.6); setTimeout(() => this.playTone(500, 'square', 0.2, 0.6), 200); setTimeout(() => this.playTone(600, 'square', 0.5, 0.6), 400); },
+        sfxMeteor: function() { this.playTone(150, 'sawtooth', 0.5, 0.8); setTimeout(() => this.playTone(100, 'square', 0.8, 1), 100); }
     };
+
+    document.getElementById('btn-audio').addEventListener('click', (e) => {
+        Settings.muted = !Settings.muted;
+        e.target.innerText = Settings.muted ? "UNMUTE" : "MUTE";
+        e.target.style.background = Settings.muted ? "var(--red)" : "var(--purple)";
+    });
 
     /* =========================================================================
        MODULE 2: GPU-ACCELERATED FX ENGINE
@@ -287,7 +316,7 @@
             const colors = ['#FFC107', '#00E5FF', '#FF1744', '#00E676', '#FFFFFF'];
             let ww = window.innerWidth; let wh = window.innerHeight;
 
-            for(let i=0; i<60; i++) {
+            for(let i=0; i<80; i++) {
                 let c = document.createElement('div'); c.className = 'confetti';
                 c.style.background = colors[Math.floor(Math.random() * colors.length)];
                 let startX = Math.random() * ww;
@@ -295,11 +324,20 @@
                 c.style.transition = `transform ${Math.random()*2 + 2}s linear, opacity 1s`;
                 this.layer.appendChild(c);
                 
-                requestAnimationFrame(() => {
-                    c.style.transform = `translate3d(${startX}px, ${wh + 20}px, 0) rotate(${Math.random()*720}deg)`;
-                });
+                requestAnimationFrame(() => { c.style.transform = `translate3d(${startX}px, ${wh + 20}px, 0) rotate(${Math.random()*720}deg)`; });
                 setTimeout(() => c.remove(), 4000);
             }
+        },
+
+        spawnMeteor: function() {
+            let m = document.createElement('div'); m.className = 'meteor';
+            let startX = Math.random() * window.innerWidth;
+            m.style.transform = `translate3d(${startX}px, -100px, 0)`;
+            m.style.transition = `transform 0.8s linear`;
+            this.layer.appendChild(m);
+            
+            requestAnimationFrame(() => { m.style.transform = `translate3d(${startX - 200}px, ${window.innerHeight + 100}px, 0)`; });
+            setTimeout(() => m.remove(), 800);
         },
         
         spawn3DAcorn: function(playerId, type) {
@@ -309,16 +347,16 @@
             let rect = el.getBoundingClientRect(); 
             let acorn = document.createElement('div'); acorn.className = 'acorn-3d'; acorn.innerText = '🌰';
             
-            let startY = rect.top; let endY = type === 'gain' ? startY - 200 : startY + window.innerHeight;
+            let startY = rect.top; let endY = type === 'gain' ? startY - 250 : startY + window.innerHeight;
             
             acorn.style.transform = `translate3d(${rect.left}px, ${startY}px, 0) scale(0.5)`;
             acorn.style.transition = type === 'gain' ? 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.8s' : 'transform 1s ease-in, opacity 1s';
-            if(type==='lose') acorn.style.filter = 'grayscale(1)';
+            if(type==='lose') acorn.style.filter = 'grayscale(1) drop-shadow(0 10px 10px rgba(255,0,0,0.8))';
             
             this.layer.appendChild(acorn);
             
             requestAnimationFrame(() => {
-                acorn.style.transform = `translate3d(${rect.left}px, ${endY}px, 0) scale(2) rotate(${type==='gain'?360:-180}deg)`;
+                acorn.style.transform = `translate3d(${rect.left}px, ${endY}px, 0) scale(2.5) rotate(${type==='gain'?360:-180}deg)`;
                 acorn.style.opacity = '0';
             });
             setTimeout(() => acorn.remove(), 1000);
@@ -344,24 +382,23 @@
                     overlay.classList.remove('active');
                     setTimeout(() => { cube.style.transition = 'none'; cube.style.transform = `rotateX(0deg) rotateY(0deg)`; void cube.offsetWidth; cube.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)'; }, 200);
                     callback();
-                }, 600);
+                }, 700);
             }, 1500);
         },
 
-        // NEW: Action Banner Engine
-        showActionBanner: function(title, desc, color, callback) {
+        // FIXED: The action banner requires strings for CSS colors.
+        showActionBanner: function(title, desc, colorString, callback) {
             let banner = document.getElementById('action-banner');
             document.getElementById('action-title').innerText = title;
-            document.getElementById('action-title').style.color = color;
+            document.getElementById('action-title').style.color = colorString;
             document.getElementById('action-desc').innerText = desc;
             
             banner.classList.add('active');
             
-            // Wait for user to read, then dismiss and execute action
             setTimeout(() => {
                 banner.classList.remove('active');
-                setTimeout(callback, 300); // Wait for banner to retract before firing action
-            }, 1500);
+                setTimeout(callback, 350); // Wait for physical banner to retract before firing math
+            }, 1800);
         }
     };
 
@@ -378,7 +415,7 @@
     const SpaceData = [
         { t: "START", class: "s-start" }, { t: "+1 🌰", f: (p) => addAcorns(p, 1) }, { t: "?", class: "s-event" },
         { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, { t: "Go Start", wait: true, f: (p) => movePlayer(p, -p.pos) },
-        { t: "+1 Roll", f: (p) => { p.extraTurn = true; log(`⭐ ${p.name} gets an extra turn!`); } }, 
+        { t: "+1 Roll", f: (p) => { p.extraTurn = true; log(`⭐ ${p.name} gets an extra turn!`, "event"); } }, 
         { t: "?", class: "s-event" }, { t: "?", class: "s-event" }, { t: "+3 Spaces", wait: true, f: (p) => movePlayer(p, 3) }, 
         { t: "Jaap STOP", class: "s-jaap" }, { t: "Next Free", wait: true, class: "s-cyan", f: (p) => jumpTo(p, "Free space") }, 
         { t: "?", class: "s-event" }, { t: "Next Jaap (+2🌰)", wait: true, f: (p) => { addAcorns(p, 2); jumpTo(p, "Jaap STOP"); } }, 
@@ -400,7 +437,7 @@
         { name: "White Wolf", p: "Defend Duels" }
     ];
 
-    /* PUBLIC EVENT DECK (Thematic, no specific names) */
+    /* EXPANDED PUBLIC EVENT DECK */
     const Events = [
         { t: "Glacier Collapse!", desc: "Everyone loses 1 🌰.", f: (p) => { state.players.forEach(o=>{if(!o.dead) loseAcorns(o,1);}); AudioEngine.sfxHurt(); } },
         { t: "Golden Find!", desc: "Collect 2 Golden Acorns.", f: (p) => addAcorns(p, 2) }, 
@@ -413,51 +450,58 @@
         { t: "Wandering Trader", desc: "Swap allies with another player.", wait: true, f: (p) => showSwapMenu(p) },
         { t: "Avalanche!", desc: "Move back 3 spaces.", wait: true, f: (p) => { AudioEngine.sfxHurt(); movePlayer(p, -3); } },
         { t: "Spring Thaw", desc: "Collect 1 🌰 for every lap completed.", f: (p) => addAcorns(p, p.laps) },
-        { t: "Secret Stash", desc: "Roll dice to collect acorns.", wait: true, f: (p) => { let r = Math.floor(Math.random()*6)+1; addAcorns(p, r); log(`Rolled ${r} for stash!`); nextTurn(); } },
-        { t: "Shortcut!", desc: "Move straight to the Bridge.", wait: true, f: (p) => jumpTo(p, "Bridge") }
+        { t: "Secret Stash", desc: "Roll dice to collect acorns.", wait: true, f: (p) => { let r = Math.floor(Math.random()*6)+1; addAcorns(p, r); log(`Rolled ${r} for stash!`, "gain"); nextTurn(); } },
+        { t: "Shortcut!", desc: "Move straight to the Bridge.", wait: true, f: (p) => jumpTo(p, "Bridge") },
+        { t: "Eagle Swoop", desc: "Steal 1 🌰 from all players.", f: (p) => { let s=0; state.players.forEach(o=>{if(o!=p && o.acorns>0 && !o.dead){loseAcorns(o,1); s++;}}); addAcorns(p, s); AudioEngine.sfxHurt(); } }
     ];
 
     /* =========================================================================
        MODULE 4: STATE MANAGEMENT & SETUP
        ========================================================================= */
-    let state = { players: [], turn: 0, finishers: [], firstLapFinished: false };
+    let state = { players: [], turn: 0, finishers: [], firstLapFinished: false, totalTurns: 0 };
     const colors = ['#F44336', '#4CAF50', '#2196F3', '#FFEB3B'];
 
-    document.getElementById('player-count').addEventListener('change', (e) => {
-        const c = document.getElementById('player-inputs'); c.innerHTML = '';
-        for(let i=0; i<e.target.value; i++) {
-            c.innerHTML += `<div class="setup-row"><input type="text" id="p${i}-name" value="Player ${i+1}" maxlength="12"><div class="player-color-dot" style="background:${colors[i]};"></div></div>`;
-        }
-    });
-    document.getElementById('player-count').dispatchEvent(new Event('change'));
-
-    document.getElementById('btn-start-game').addEventListener('click', () => {
-        const num = document.getElementById('player-count').value;
-        for(let i=0; i<num; i++) {
-            state.players.push({
-                id: i, name: document.getElementById(`p${i}-name`).value, color: colors[i],
-                pos: 0, acorns: 4, laps: 0, ally: null, skip: false, extraTurn: false, dead: false
-            });
-        }
+    // Ensure DOM is fully loaded before attaching listeners
+    document.addEventListener("DOMContentLoaded", () => {
         
-        const setupContainer = document.getElementById('setup-container'); setupContainer.style.opacity = '0';
-        setTimeout(() => {
-            setupContainer.style.display = 'none'; 
-            document.getElementById('game-interface').style.display = 'flex'; 
-            AudioEngine.ctx.resume(); buildBoard(); updateHUD(); setTurn();
-        }, 300);
-    });
+        document.getElementById('player-count').addEventListener('change', (e) => {
+            const c = document.getElementById('player-inputs'); c.innerHTML = '';
+            for(let i=0; i<e.target.value; i++) {
+                c.innerHTML += `<div class="setup-row"><input type="text" id="p${i}-name" value="Player ${i+1}" maxlength="12"><div class="player-color-dot" style="background:${colors[i]};"></div></div>`;
+            }
+        });
+        document.getElementById('player-count').dispatchEvent(new Event('change'));
 
-    document.getElementById('btn-rules').addEventListener('click', () => {
-        createChoiceModal("RULEBOOK", [{t: "Close", a: () => closeModal()}]);
-        document.getElementById('modal-content-area').innerHTML = `
-            <div style="text-align: left; font-size: clamp(0.9rem, 2.5vmin, 1.2rem); line-height: 1.5; color: #FFF;">
-                <p><strong>Start:</strong> Distribute 4 golden acorns.</p>
-                <p><strong>Laps:</strong> 1st gets +1 bonus. Everyone gets +2 per lap.</p>
-                <p style="color: var(--cyan);"><strong>Endgame (3-4 P):</strong> 1st (+3🌰), 2nd (+2🌰), 3rd (+1🌰). Last eliminated.</p>
-                <p style="color: var(--gold);"><strong>Endgame (2 P):</strong> First to finish lap 3 gets +3🌰. Game ends instantly. Winner based on total acorns.</p>
-                <p><strong>Combat:</strong> Land on an enemy to enter Duel Arena. Winner steals 1 acorn.</p>
-            </div>`;
+        document.getElementById('btn-start-game').addEventListener('click', () => {
+            const num = document.getElementById('player-count').value;
+            for(let i=0; i<num; i++) {
+                state.players.push({
+                    id: i, name: document.getElementById(`p${i}-name`).value, color: colors[i],
+                    pos: 0, acorns: 4, laps: 0, ally: null, skip: false, extraTurn: false, dead: false
+                });
+            }
+            
+            const setupContainer = document.getElementById('setup-container'); setupContainer.style.opacity = '0';
+            setTimeout(() => {
+                setupContainer.style.display = 'none'; 
+                document.getElementById('game-interface').style.display = 'flex'; 
+                AudioEngine.ctx.resume(); buildBoard(); updateHUD(); setTurn();
+                log("🚀 GAME STARTED. MAY THE BEST EXPLORER WIN.", "event");
+            }, 500);
+        });
+
+        document.getElementById('btn-rules').addEventListener('click', () => {
+            createChoiceModal("RULEBOOK", [{t: "Close", a: () => closeModal()}]);
+            document.getElementById('modal-content-area').innerHTML = `
+                <div style="text-align: left; font-size: clamp(1rem, 2.5vmin, 1.5rem); line-height: 1.6; color: #FFF;">
+                    <p><strong>Start:</strong> Distribute 4 golden acorns.</p>
+                    <p><strong>Laps:</strong> 1st gets +1 bonus. Everyone gets +2 per lap.</p>
+                    <p style="color: var(--cyan);"><strong>Endgame (3-4 P):</strong> 1st (+3🌰), 2nd (+2🌰), 3rd (+1🌰). Last eliminated.</p>
+                    <p style="color: var(--gold);"><strong>Endgame (2 P):</strong> First to finish lap 3 gets +3🌰. Game ends instantly. Winner based on total acorns.</p>
+                    <p><strong>Combat:</strong> Land on an enemy to enter Duel Arena. Winner steals 1 acorn.</p>
+                    <p style="color: var(--red);"><strong>Sudden Death:</strong> If the game exceeds 40 turns, a Meteor Shower begins. Everyone loses 1 acorn per turn.</p>
+                </div>`;
+        });
     });
 
     /* =========================================================================
@@ -465,11 +509,13 @@
        ========================================================================= */
     function addAcorns(p, amt) {
         if(amt <= 0) return; p.acorns += amt;
+        log(`${p.name} gained ${amt} 🌰.`, "gain");
         FX.spawn3DAcorn(p.id, 'gain'); updateHUD();
     }
     
     function loseAcorns(p, amt) {
         let actualLoss = Math.min(p.acorns, amt); if(actualLoss <= 0) return; p.acorns -= actualLoss;
+        log(`${p.name} lost ${actualLoss} 🌰.`, "lose");
         FX.spawn3DAcorn(p.id, 'lose'); updateHUD();
     }
 
@@ -489,7 +535,7 @@
         let tok = document.createElement('div'); tok.id = `tok-${p.id}`; tok.className = 'token';
         if (hopping) { 
             AudioEngine.sfxJump(); 
-            tok.style.transition = 'transform 0.15s ease-out'; tok.style.transform = 'translateY(-3vmin) scale(1.2)';
+            tok.style.transition = 'transform 0.15s ease-out'; tok.style.transform = 'translateY(-4vmin) scale(1.3)';
             setTimeout(() => { tok.style.transform = 'translateY(0) scale(1)'; }, 150);
         }
         tok.style.background = p.color; tok.innerText = p.name.charAt(0);
@@ -505,26 +551,40 @@
             h.innerHTML += `<div id="hud-p${p.id}" class="hud-player ${i === state.turn ? 'active' : ''} ${p.dead ? 'eliminated' : ''}" style="border-top-color:${p.color};">
                 <div class="p-name" style="color:${p.color}">${p.name}</div>
                 <div class="p-acorns">${p.acorns} 🌰</div>
-                <div style="font-size: clamp(0.8rem, 2vmin, 1.2rem); font-weight:bold;">Laps: <span style="color:var(--cyan);">${p.laps}/3</span></div>
-                <div style="color:var(--gold); font-size: clamp(0.7rem, 1.8vmin, 1rem); font-weight:bold; margin-top:0.5vmin;">${p.ally ? p.ally.name : 'NO ALLY'}</div>
+                <div style="font-size: clamp(0.9rem, 2.5vmin, 1.4rem); font-weight:bold;">Laps: <span style="color:var(--cyan);">${p.laps}/3</span></div>
+                <div style="color:var(--gold); font-size: clamp(0.7rem, 2vmin, 1.2rem); font-weight:900; background:rgba(0,0,0,0.8); padding:0.5vmin; border-radius:0.5vmin; margin-top:0.5vmin;">${p.ally ? p.ally.name : 'NO ALLY'}</div>
             </div>`;
         });
     }
 
-    function log(msg) {
+    function log(msg, type = "normal") {
         const l = document.getElementById('log'); let t = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-        l.innerHTML = `<div class="log-entry"><span style="color:#666;">[${t}]</span> ${msg}</div>` + l.innerHTML; l.scrollTop = 0;
+        let cClass = "";
+        if(type==="gain") cClass = "log-gain"; if(type==="lose") cClass = "log-lose"; if(type==="event") cClass = "log-event";
+        l.innerHTML = `<div class="log-entry"><span class="log-time">[${t}]</span> <span class="${cClass}">${msg}</span></div>` + l.innerHTML; 
+        l.scrollTop = 0;
     }
 
     function setTurn() {
         let p = state.players[state.turn]; document.getElementById('turn-indicator').innerText = `${p.name}'s Turn`;
         document.getElementById('turn-indicator').style.color = p.color; document.getElementById('btn-roll').disabled = false;
+        
+        // Sudden Death Check
+        if(state.totalTurns > 40) {
+            if(!Settings.isSuddenDeath) {
+                Settings.isSuddenDeath = true;
+                FX.showActionBanner("METEOR SHOWER", "Sudden Death! Everyone loses 1 🌰 per turn!", "var(--red)", () => {});
+            }
+            FX.spawnMeteor(); AudioEngine.sfxMeteor();
+            loseAcorns(p, 1);
+        }
+        
         updateHUD();
     }
 
     function nextTurn() {
-        let p = state.players[state.turn];
-        if (p.extraTurn) { p.extraTurn = false; log(`⭐ ${p.name} takes an extra turn!`); }
+        state.totalTurns++; let p = state.players[state.turn];
+        if (p.extraTurn) { p.extraTurn = false; log(`⭐ ${p.name} takes an extra turn!`, "event"); }
         else { do { state.turn = (state.turn + 1) % state.players.length; } while (state.players[state.turn].dead || state.finishers.includes(state.players[state.turn])); }
         setTurn();
     }
@@ -536,7 +596,7 @@
         let p = state.players[state.turn];
 
         if (p.skip) {
-            p.skip = false; log(`🛑 ${p.name} skips a turn.`);
+            p.skip = false; log(`🛑 ${p.name} skips a turn.`, "lose");
             AudioEngine.sfxHurt(); return setTimeout(nextTurn, 1000);
         }
 
@@ -545,6 +605,7 @@
         let finalRoll = baseRoll + bonus;
         
         FX.rollCenter3DDice(finalRoll, () => {
+            if (bonus > 0) log(`🧢 Caveman adds +1!`, "gain");
             log(`🎲 ${p.name} moves ${finalRoll}.`);
             movePlayer(p, finalRoll);
         });
@@ -558,7 +619,7 @@
             if (currentStep >= steps) { 
                 if(p.ally && p.ally.name === "Yak" && amt > 0) {
                     let passed = 0; state.players.forEach(o => { if(o.id !== p.id && !o.dead && o.pos > startPos && o.pos <= startPos+amt) passed++; });
-                    if(passed > 0) { addAcorns(p, passed); log(`🐂 Yak power: got ${passed} 🌰 passing players!`); }
+                    if(passed > 0) { addAcorns(p, passed); log(`🐂 Yak power: got ${passed} 🌰 passing players!`, "gain"); }
                 }
                 evaluateSpace(p); return; 
             }
@@ -566,31 +627,31 @@
             
             if (p.pos >= SpaceData.length) {
                 p.pos = 0; p.laps++; 
-                addAcorns(p, 2); log(`🏁 ${p.name} finished lap ${p.laps}! (+2 🌰)`);
+                addAcorns(p, 2); log(`🏁 ${p.name} finished lap ${p.laps}! (+2 🌰)`, "gain");
                 
-                if (!state.firstLapFinished) { state.firstLapFinished = true; addAcorns(p, 1); log(`🌟 ${p.name} is FIRST to finish a lap! (+1 🌰)`); AudioEngine.sfxWin(); }
+                if (!state.firstLapFinished) { state.firstLapFinished = true; addAcorns(p, 1); log(`🌟 ${p.name} is FIRST to finish a lap! (+1 🌰)`, "gain"); AudioEngine.sfxWin(); }
                 
                 if (p.laps >= 3 && !state.finishers.includes(p)) {
                     state.finishers.push(p); let place = state.finishers.length; let totalP = state.players.length;
                     
                     if (totalP === 4) {
-                        if (place === 1) { addAcorns(p, 3); log(`🥇 ${p.name} finished 1st! (+3 🌰)`); FX.shootConfetti(); }
-                        if (place === 2) { addAcorns(p, 2); log(`🥈 ${p.name} finished 2nd! (+2 🌰)`); }
-                        if (place === 3) { addAcorns(p, 1); log(`🥉 ${p.name} finished 3rd! (+1 🌰)`); }
-                        if (place === 4) { p.dead = true; log(`💀 ${p.name} finished LAST and is ELIMINATED!`); AudioEngine.sfxHurt(); return endGame(); }
+                        if (place === 1) { addAcorns(p, 3); log(`🥇 ${p.name} finished 1st! (+3 🌰)`, "gain"); FX.shootConfetti(); }
+                        if (place === 2) { addAcorns(p, 2); log(`🥈 ${p.name} finished 2nd! (+2 🌰)`, "gain"); }
+                        if (place === 3) { addAcorns(p, 1); log(`🥉 ${p.name} finished 3rd! (+1 🌰)`, "gain"); }
+                        if (place === 4) { p.dead = true; log(`💀 ${p.name} finished LAST and is ELIMINATED!`, "lose"); AudioEngine.sfxHurt(); return endGame(); }
                     } 
                     else if (totalP === 3) {
-                        if (place === 1) { addAcorns(p, 2); log(`🥇 ${p.name} finished 1st! (+2 🌰)`); FX.shootConfetti(); }
-                        if (place === 2) { addAcorns(p, 1); log(`🥈 ${p.name} finished 2nd! (+1 🌰)`); }
-                        if (place === 3) { p.dead = true; log(`💀 ${p.name} finished LAST and is ELIMINATED!`); AudioEngine.sfxHurt(); return endGame(); }
+                        if (place === 1) { addAcorns(p, 2); log(`🥇 ${p.name} finished 1st! (+2 🌰)`, "gain"); FX.shootConfetti(); }
+                        if (place === 2) { addAcorns(p, 1); log(`🥈 ${p.name} finished 2nd! (+1 🌰)`, "gain"); }
+                        if (place === 3) { p.dead = true; log(`💀 ${p.name} finished LAST and is ELIMINATED!`, "lose"); AudioEngine.sfxHurt(); return endGame(); }
                     } 
                     else if (totalP === 2) {
-                        if (place === 1) { addAcorns(p, 3); log(`🥇 ${p.name} finished Lap 3 first! GAME OVER!`); FX.shootConfetti(); setTimeout(endGame, 1000); return; }
+                        if (place === 1) { addAcorns(p, 3); log(`🥇 ${p.name} finished Lap 3 first! GAME OVER!`, "event"); FX.shootConfetti(); setTimeout(endGame, 1000); return; }
                     }
                 }
             } else if (p.pos < 0) { p.pos = SpaceData.length - 1; }
 
-            drawToken(p, true); currentStep++; setTimeout(step, 300); // Faster stepping
+            drawToken(p, true); currentStep++; setTimeout(step, 250); // Fast stepping
         }
         step();
     }
@@ -604,25 +665,25 @@
     function evaluateSpace(p) {
         updateHUD(); let sp = SpaceData[p.pos]; log(`${p.name} landed on: ${sp.t}`);
 
-        if (p.pos === 0 && p.ally && p.ally.name === "Squirrel") { addAcorns(p, 4); log("Squirrel power: +4 🌰"); }
-        if (sp.t.toLowerCase().includes("bridge") && p.ally && p.ally.name === "White Dog") { addAcorns(p, 1); log("White Dog power: +1 🌰"); }
-        if (sp.t.toLowerCase().includes("free space") && p.ally && p.ally.name === "Leopard") { addAcorns(p, 1); log("Leopard power: +1 🌰"); }
-        if (cornerSpaces.includes(p.pos) && p.ally && p.ally.name === "Saber-tooth") { addAcorns(p, 1); log("Saber-tooth power: +1 🌰"); }
+        if (p.pos === 0 && p.ally && p.ally.name === "Squirrel") { addAcorns(p, 4); log("Squirrel power: +4 🌰", "gain"); }
+        if (sp.t.toLowerCase().includes("bridge") && p.ally && p.ally.name === "White Dog") { addAcorns(p, 1); log("White Dog power: +1 🌰", "gain"); }
+        if (sp.t.toLowerCase().includes("free space") && p.ally && p.ally.name === "Leopard") { addAcorns(p, 1); log("Leopard power: +1 🌰", "gain"); }
+        if (cornerSpaces.includes(p.pos) && p.ally && p.ally.name === "Saber-tooth") { addAcorns(p, 1); log("Saber-tooth power: +1 🌰", "gain"); }
 
         let enemy = state.players.find(o => o.id !== p.id && !o.dead && !state.finishers.includes(o) && o.pos === p.pos);
         if (enemy) {
             if(enemy.ally && enemy.ally.name === "White Wolf") {
-                log(`🐺 White Wolf defends! ${enemy.name} steals 1 🌰 from ${p.name}!`);
+                log(`🐺 White Wolf defends! ${enemy.name} steals 1 🌰 from ${p.name}!`, "lose");
                 loseAcorns(p, 1); addAcorns(enemy, 1); AudioEngine.sfxHurt(); triggerSpaceLogic(p, sp);
             } else {
-                log(`⚔️ DUEL INITIATED!`);
+                log(`⚔️ DUEL INITIATED!`, "event");
                 openModal("⚔️ COMBAT INITIATED ⚔️", ""); AudioEngine.sfxHurt();
                 let content = document.getElementById('modal-content-area');
                 content.innerHTML = `
                     <div class="duel-arena">
-                        <div class="duel-player" id="dp1"><div class="duel-avatar" style="background:${p.color}">${p.name.charAt(0)}</div><h3 style="color:${p.color};">${p.name}</h3><div id="dd1" style="font-size: 6vmin; width: 10vmin; height: 10vmin; background:#FFF; color:#000; border-radius:1vmin; display:flex; align-items:center; justify-content:center; margin-top:1vmin;">?</div></div>
+                        <div class="duel-player" id="dp1"><div class="duel-avatar" style="background:${p.color}">${p.name.charAt(0)}</div><h3 style="color:${p.color};">${p.name}</h3><div id="dd1" style="font-size: 8vmin; width: 12vmin; height: 12vmin; background:#FFF; color:#000; border-radius:1vmin; display:flex; align-items:center; justify-content:center; margin-top:1vmin;">?</div></div>
                         <div class="vs-text">VS</div>
-                        <div class="duel-player" id="dp2"><div class="duel-avatar" style="background:${enemy.color}">${enemy.name.charAt(0)}</div><h3 style="color:${enemy.color};">${enemy.name}</h3><div id="dd2" style="font-size: 6vmin; width: 10vmin; height: 10vmin; background:#FFF; color:#000; border-radius:1vmin; display:flex; align-items:center; justify-content:center; margin-top:1vmin;">?</div></div>
+                        <div class="duel-player" id="dp2"><div class="duel-avatar" style="background:${enemy.color}">${enemy.name.charAt(0)}</div><h3 style="color:${enemy.color};">${enemy.name}</h3><div id="dd2" style="font-size: 8vmin; width: 12vmin; height: 12vmin; background:#FFF; color:#000; border-radius:1vmin; display:flex; align-items:center; justify-content:center; margin-top:1vmin;">?</div></div>
                     </div>`;
                 document.getElementById('modal-btns').innerHTML = `<button class="btn btn-red" id="btn-start-duel">ROLL</button>`;
                 
@@ -636,10 +697,10 @@
                         d1.innerText = r1; d2.innerText = r2; AudioEngine.sfxDiceTick(); ticks++;
                         if(ticks > 15) {
                             clearInterval(interval); let winner = r1 > r2 ? p : enemy; let loser = r1 > r2 ? enemy : p;
-                            if(r1 > r2) { d1.style.color="var(--gold)"; document.getElementById('dp2').style.opacity="0.5"; } else { d2.style.color="var(--gold)"; document.getElementById('dp1').style.opacity="0.5"; }
+                            if(r1 > r2) { d1.style.color="var(--gold)"; document.getElementById('dp2').style.opacity="0.3"; } else { d2.style.color="var(--gold)"; document.getElementById('dp1').style.opacity="0.3"; }
                             AudioEngine.sfxWin();
                             document.getElementById('modal-btns').innerHTML = `<h2 style="width:100%; color:var(--gold);">${winner.name} WINS!</h2><button class="btn btn-cyan" id="btn-end-duel">Steal Acorn</button>`;
-                            document.getElementById('btn-end-duel').onclick = () => { closeModal(); loseAcorns(loser, 1); addAcorns(winner, 1); log(`⚔️ ${winner.name} stole 1 🌰 from ${loser.name}!`); triggerSpaceLogic(p, sp); };
+                            document.getElementById('btn-end-duel').onclick = () => { closeModal(); loseAcorns(loser, 1); addAcorns(winner, 1); log(`⚔️ ${winner.name} stole 1 🌰 from ${loser.name}!`, "event"); triggerSpaceLogic(p, sp); };
                         }
                     }, 80);
                 };
@@ -649,27 +710,27 @@
         triggerSpaceLogic(p, sp);
     }
 
-    // THE FIX: Action Banner Queue System
+    // THE FIX: Action Banner Queue System (Uses valid CSS strings now)
     function triggerSpaceLogic(p, sp) {
         if (sp.class === 's-jaap') {
-            FX.showActionBanner("JAAP STOP", "Vehicle broken. Skip next turn.", var(--red), () => {
+            FX.showActionBanner("JAAP STOP", "Vehicle broken. Skip next turn.", "var(--red)", () => {
                 p.skip = true; AudioEngine.sfxHurt(); nextTurn(); 
             });
         }
         else if (sp.class === 's-event') {
             let ev = Events[Math.floor(Math.random() * Events.length)];
-            FX.showActionBanner("EVENT DRAWN", ev.t, var(--cyan), () => {
+            FX.showActionBanner("EVENT DRAWN", ev.t, "var(--cyan)", () => {
                 createChoiceModal("EVENT DRAWN", [{t: "Resolve", a: () => { 
                     if (ev.wait) ev.f(p); 
                     else { ev.f(p); updateHUD(); nextTurn(); } 
                 }}]);
-                document.getElementById('modal-desc').innerHTML = `<span style="color: var(--cyan); font-size: clamp(1.2rem, 3vmin, 2rem);">${ev.desc}</span>`;
+                document.getElementById('modal-desc').innerHTML = `<span style="color: var(--cyan); font-size: clamp(1.5rem, 4vmin, 2.5rem);">${ev.desc}</span>`;
             });
         }
         else if (sp.f) { 
-            // Only show banner if there is an actual action
+            // Only show banner if there is an actual action to make it feel responsive
             if(sp.t !== "START" && sp.t !== "End" && sp.t !== "Free space" && sp.t !== "Bridge") {
-                 FX.showActionBanner("SPACE TRIGGERED", sp.t, var(--gold), () => {
+                 FX.showActionBanner("SPACE TRIGGERED", sp.t, "var(--gold)", () => {
                      sp.f(p); updateHUD(); 
                      if (!sp.wait) setTimeout(nextTurn, 500); 
                  });
@@ -678,7 +739,7 @@
                  if (!sp.wait) setTimeout(nextTurn, 500);
             }
         }
-        else { setTimeout(nextTurn, 800); }
+        else { setTimeout(nextTurn, 500); }
     }
 
     /* =========================================================================
@@ -699,13 +760,13 @@
         openModal("🏆 GAME OVER 🏆", ""); FX.shootConfetti();
         
         let html = rank.map((p,i) => `
-            <div style="background: rgba(0,0,0,0.8); padding: 2vmin; border-radius: 1vmin; border: 2px solid ${p.color}; margin-bottom: 2vmin; text-align: left;">
-                <div style="display:flex; justify-content:space-between; font-size: clamp(1.2rem, 3vmin, 2rem); font-weight:bold; color:${p.color};">
+            <div style="background: rgba(0,0,0,0.8); padding: 2.5vmin; border-radius: 1vmin; border: 2px solid ${p.color}; margin-bottom: 2vmin; text-align: left;">
+                <div style="display:flex; justify-content:space-between; font-size: clamp(1.5rem, 4vmin, 2.5rem); font-weight:bold; color:${p.color};">
                     <span>${i===0 ? '👑 ' : ''}${i+1}. ${p.name}</span><span>${p.acorns} 🌰</span>
                 </div>
             </div>`).join('');
         
-        document.getElementById('modal-content-area').innerHTML = `<h3 style="font-size: clamp(2rem, 5vmin, 3rem); color: var(--gold); margin-bottom: 2vmin; font-family:'Carter One';">${winner.name} WINS!</h3>${html}`;
+        document.getElementById('modal-content-area').innerHTML = `<h3 style="font-size: clamp(2.5rem, 6vmin, 4rem); color: var(--gold); margin-bottom: 3vmin; font-family:'Carter One'; text-shadow: 2px 2px 0 #000;">${winner.name} WINS!</h3>${html}`;
         document.getElementById('modal-btns').innerHTML = `<button class="btn btn-cyan" onclick="location.reload()">PLAY AGAIN</button>`;
         document.getElementById('btn-roll').classList.add('hidden');
     }
@@ -714,7 +775,7 @@
         let avail = AlliesList.filter(a => !state.players.find(pl => pl.ally && pl.ally.name === a.name));
         if(avail.length === 0) avail = AlliesList;
         let choices = avail.sort(() => 0.5 - Math.random()).slice(0, 3);
-        let btns = choices.map(c => ({ t: `${c.name}\n(${c.p})`, a: () => { p.ally = c; log(`🤝 Allied with ${c.name}`); updateHUD(); nextTurn(); } }));
+        let btns = choices.map(c => ({ t: `${c.name}\n(${c.p})`, a: () => { p.ally = c; log(`🤝 Allied with ${c.name}`, "event"); updateHUD(); nextTurn(); } }));
         btns.push({ t: "Pass", a: () => { log("Passed on ally."); nextTurn(); } });
         createChoiceModal(`Choose Ally`, btns);
     }
@@ -722,7 +783,7 @@
     function showTradeMenu(p) {
         let btns = [
             { t: "Buy Ally (4🌰)", a: () => { if(p.acorns>=4){ loseAcorns(p,4); showAllyMenu(p);} else {log("Not enough acorns!"); AudioEngine.sfxHurt(); nextTurn();} } },
-            { t: "Sell Ally (+2🌰)", a: () => { if(p.ally){p.ally=null; addAcorns(p,2); log("Sold ally.");} else {log("No ally to sell!");} updateHUD(); nextTurn(); } },
+            { t: "Sell Ally (+2🌰)", a: () => { if(p.ally){p.ally=null; addAcorns(p,2); log("Sold ally.", "gain");} else {log("No ally to sell!", "lose");} updateHUD(); nextTurn(); } },
             { t: "Leave", a: () => nextTurn() }
         ];
         createChoiceModal("Villager Market", btns);
@@ -730,7 +791,7 @@
 
     function showTargetMenu(p, amt) {
         let targets = state.players.filter(o => o.id !== p.id && !o.dead);
-        let btns = targets.map(t => ({ t: `${t.name}`, a: () => { let act = Math.min(amt, t.acorns); loseAcorns(t, act); addAcorns(p, act); log(`Stole ${act} 🌰 from ${t.name}`); nextTurn(); } }));
+        let btns = targets.map(t => ({ t: `${t.name}`, a: () => { let act = Math.min(amt, t.acorns); loseAcorns(t, act); addAcorns(p, act); log(`Stole ${act} 🌰 from ${t.name}`, "gain"); nextTurn(); } }));
         if(btns.length === 0) btns.push({t: "Nobody available", a: () => nextTurn()});
         createChoiceModal(`Steal ${amt} Acorn(s) from:`, btns);
     }
@@ -738,7 +799,7 @@
     function showSwapMenu(p) {
         let targets = state.players.filter(o => o.id !== p.id && !o.dead && o.ally);
         if(targets.length === 0) { log("Nobody has an ally to swap!"); return nextTurn(); }
-        let btns = targets.map(t => ({ t: `Swap with ${t.name}`, a: () => { let temp = p.ally; p.ally = t.ally; t.ally = temp; log(`Swapped allies with ${t.name}!`); updateHUD(); nextTurn(); } }));
+        let btns = targets.map(t => ({ t: `Swap with ${t.name}`, a: () => { let temp = p.ally; p.ally = t.ally; t.ally = temp; log(`Swapped allies with ${t.name}!`, "event"); updateHUD(); nextTurn(); } }));
         btns.push({ t: "Pass", a: () => nextTurn() });
         createChoiceModal("Swap Ally", btns);
     }
