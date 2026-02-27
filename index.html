@@ -20,7 +20,38 @@
         body.sudden-death { background: #3a0000; }
 
         /* ==========================================================================
-           2. SETUP SCREEN & STRICT PROFANITY FILTER
+           2. DYNAMIC WEATHER OVERLAYS (Pure CSS - Zero Lag)
+           ========================================================================== */
+        #weather-layer {
+            position: fixed; inset: 0; pointer-events: none; z-index: 15; 
+            transition: opacity 2s ease; opacity: 0;
+        }
+        .weather-snow {
+            background-image: radial-gradient(circle, #FFF 2px, transparent 3px), radial-gradient(circle, #FFF 1px, transparent 2px);
+            background-size: 100px 100px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            animation: snowAnim 4s linear infinite;
+            opacity: 0.4 !important;
+        }
+        .weather-blizzard {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.8) 3px, transparent 4px);
+            background-size: 50px 50px;
+            animation: blizzardAnim 0.4s linear infinite;
+            opacity: 0.7 !important;
+        }
+        .weather-rain {
+            background-image: linear-gradient(to bottom, transparent 60%, rgba(100,200,255,0.6) 60%);
+            background-size: 10px 40px;
+            animation: rainAnim 0.2s linear infinite;
+            opacity: 0.5 !important;
+        }
+        
+        @keyframes snowAnim { from { background-position: 0 0, 30px 30px; } to { background-position: 100px 100px, 130px 130px; } }
+        @keyframes blizzardAnim { from { background-position: 0 0; } to { background-position: 300px 300px; } }
+        @keyframes rainAnim { from { background-position: 0 0; } to { background-position: -20px 200px; } }
+
+        /* ==========================================================================
+           3. SETUP SCREEN & STRICT PROFANITY FILTER
            ========================================================================== */
         #setup-screen {
             position: absolute; inset: 0; background: rgba(13, 19, 33, 0.98); 
@@ -47,7 +78,7 @@
         #setup-error { color: #FF1744; font-weight: bold; margin-bottom: 15px; display: none; background: rgba(255,0,0,0.2); padding: 10px; border-radius: 5px; border: 1px solid #FF1744;}
 
         /* ==========================================================================
-           3. MASTER GAME LAYOUT
+           4. MASTER GAME LAYOUT
            ========================================================================== */
         #game-container { display: none; width: 100%; height: 100%; padding: 1vmin; gap: 1vmin; }
 
@@ -63,19 +94,34 @@
         }
 
         /* ==========================================================================
-           4. THE BOARD (Perfect Square)
+           5. THE BOARD & BIOME IMAGES
            ========================================================================== */
         #board-wrapper { position: relative; width: 100%; height: 100%; max-width: 100vh; max-height: 100vw; aspect-ratio: 1/1; }
         
         #board {
             display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr);
-            gap: 2px; width: 100%; height: 100%; background: #222; border: 2px solid #00E5FF; padding: 4px; border-radius: 10px;
+            gap: 2px; width: 100%; height: 100%; background: #222; border: 2px solid #00E5FF; padding: 4px; border-radius: 10px; position: relative;
         }
+
+        /* THE 4 EPIC BACKGROUND ZONES */
+        #center-island {
+            grid-column: 2 / 10; grid-row: 2 / 10; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+            border-radius: 5px; overflow: hidden; border: 3px solid rgba(255,255,255,0.2); z-index: 1; box-shadow: inset 0 0 50px rgba(0,0,0,0.9);
+        }
+        .biome {
+            display: flex; align-items: center; justify-content: center; font-size: clamp(1rem, 3vmin, 2.5rem); 
+            font-weight: 900; color: #FFF; text-shadow: 2px 2px 5px #000, 0 0 15px #000; text-transform: uppercase;
+            background-size: cover; background-position: center; padding: 10px; text-align: center; border: 1px solid rgba(0,0,0,0.5);
+        }
+        .b-grass { background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80'); }
+        .b-peaks { background-image: url('https://images.unsplash.com/photo-1517823382935-51bfcb0ec6bc?w=800&q=80'); }
+        .b-village { background-image: url('https://images.unsplash.com/photo-1533588265328-971c26f63fbd?w=800&q=80'); }
+        .b-tundra { background-image: url('https://images.unsplash.com/photo-1478265409131-1f65c88f965c?w=800&q=80'); }
 
         .space {
             background: #FFF; border: 1px solid #000; color: #000; display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center; font-size: clamp(0.5rem, 1.8vmin, 1rem);
-            font-weight: 900; position: relative; border-radius: 4px; box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+            font-weight: 900; position: relative; border-radius: 4px; box-shadow: inset 0 0 5px rgba(0,0,0,0.3); z-index: 10;
         }
         
         .s-start { background: #FFC107; font-size: clamp(0.7rem, 2vmin, 1.2rem); }
@@ -90,14 +136,14 @@
         .token {
             width: clamp(15px, 3.5vmin, 28px); height: clamp(15px, 3.5vmin, 28px); border-radius: 50%;
             border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; justify-content: center;
-            font-size: clamp(0.7rem, 2vmin, 1.2rem); box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            font-size: clamp(0.7rem, 2vmin, 1.2rem); box-shadow: 0 4px 10px rgba(0,0,0,0.9);
             transition: transform 0.15s linear;
         }
 
         /* ==========================================================================
-           5. UI PANELS
+           6. UI PANELS
            ========================================================================== */
-        .panel { background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 1vmin; }
+        .panel { background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 1vmin; z-index: 20; position: relative;}
         
         #hud { display: flex; flex-wrap: wrap; gap: 1vmin; height: 45%; overflow-y: auto; align-content: flex-start;}
         .player-card { 
@@ -127,17 +173,17 @@
         .btn-cyan { background: #00E5FF; color: #000; }
 
         /* ==========================================================================
-           6. DICE ANIMATION & MODALS
+           7. DICE ANIMATION & MODALS
            ========================================================================== */
         #dice-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 90000; }
-        .dice-box { width: 100px; height: 100px; background: #FFF; border: 5px solid #000; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; color: #000; animation: shake 0.5s infinite; }
+        .dice-box { width: 100px; height: 100px; background: #FFF; border: 5px solid #000; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; color: #000; animation: shake 0.5s infinite; box-shadow: 0 0 30px rgba(255,193,7,0.5);}
         @keyframes shake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(15deg) scale(1.1); } 50% { transform: rotate(0deg) scale(1); } 75% { transform: rotate(-15deg) scale(1.1); } 100% { transform: rotate(0deg) scale(1); } }
 
         #simple-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 2vmin;
         }
         .modal-content {
-            background: #111; border: 3px solid #00E5FF; padding: 4vmin; text-align: center; border-radius: 10px; max-width: 600px; width: 100%;
+            background: #111; border: 3px solid #00E5FF; padding: 4vmin; text-align: center; border-radius: 10px; max-width: 600px; width: 100%; box-shadow: 0 0 50px rgba(0,229,255,0.2);
         }
         .modal-content h2 { color: #FFC107; font-size: clamp(1.8rem, 4.5vmin, 3rem); margin: 0 0 2vmin 0; text-transform: uppercase; }
         .modal-content p { font-size: clamp(1.1rem, 3vmin, 1.5rem); margin-bottom: 3vmin; line-height: 1.4; }
@@ -151,6 +197,8 @@
     </style>
 </head>
 <body>
+
+    <div id="weather-layer"></div>
 
     <div id="dice-overlay">
         <div class="dice-box" id="dice-face">🎲</div>
@@ -179,7 +227,14 @@
     <div id="game-container">
         <div id="left-col">
             <div id="board-wrapper">
-                <div id="board"></div>
+                <div id="board">
+                    <div id="center-island">
+                        <div class="biome b-grass">Grassy Plains</div>
+                        <div class="biome b-peaks">Frozen Peaks</div>
+                        <div class="biome b-village">Ancient Village</div>
+                        <div class="biome b-tundra">Snowy Tundra</div>
+                    </div>
+                    </div>
             </div>
         </div>
 
@@ -228,7 +283,6 @@
                            .replace(/\$/g, 's').replace(/5/g, 's').replace(/3/g, 'e')
                            .replace(/4/g, 'a').replace(/7/g, 't');
         
-        // Check normal string and the aggressively stripped string
         let normal = name.toLowerCase();
         
         for (let i = 0; i < rawBadWords.length; i++) {
@@ -348,18 +402,17 @@
     ];
 
     /* =========================================================================
-       3. GAME STATE
+       3. GAME STATE & DYNAMIC WEATHER
        ========================================================================= */
     let state = {
-        players: [],
-        turn: 0,
-        totalTurns: 1,
-        suddenDeath: false,
-        jackpot: 0
+        players: [], turn: 0, totalTurns: 1, suddenDeath: false, jackpot: 0
     };
+
+    const weatherConditions = ['clear', 'snow', 'blizzard', 'rain'];
 
     function initGame() {
         const board = document.getElementById('board');
+        // We start loop from 0 to 35 to append the grid perimeter spaces
         for (let i = 0; i < 36; i++) {
             let sp = SpaceData[i] || { t: "Free space" }; 
             let div = document.createElement('div');
@@ -371,6 +424,20 @@
         }
         state.players.forEach(p => drawToken(p));
         updateHUD(); startTurn();
+    }
+
+    function triggerRandomWeather() {
+        let newWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+        let layer = document.getElementById('weather-layer');
+        if (newWeather === 'clear') {
+            layer.style.opacity = '0';
+            setTimeout(() => layer.className = '', 2000);
+            log(`☀️ The weather has cleared up.`);
+        } else {
+            layer.className = `weather-${newWeather}`;
+            layer.style.opacity = '1';
+            log(`☁️ WEATHER SHIFT: A ${newWeather.toUpperCase()} has begun!`);
+        }
     }
 
     /* =========================================================================
@@ -458,6 +525,11 @@
         document.getElementById('turn-indicator').innerText = `${p.name}'s Turn`;
         document.getElementById('turn-indicator').style.color = p.color;
         
+        // Random weather change every 6 total turns
+        if (state.totalTurns > 1 && state.turn === 0 && state.totalTurns % 6 === 0) {
+            triggerRandomWeather();
+        }
+
         if (state.totalTurns > 40 && !state.suddenDeath) {
             state.suddenDeath = true; document.body.classList.add('sudden-death');
             showMsg("💥 METEOR SHOWER 💥", "40 Turns reached! Sudden Death activated. Everyone loses 1 🌰 at the start of their turn!", () => processTurnStart(p));
@@ -485,7 +557,6 @@
         let finalRoll = baseRoll;
         if (p.ally && p.ally.name === "Caveman") { finalRoll += 1; log(`🦴 Caveman ally adds +1 to the roll!`); }
 
-        // 3D Animated Dice
         let overlay = document.getElementById('dice-overlay');
         let diceFace = document.getElementById('dice-face');
         overlay.style.display = 'flex';
@@ -499,16 +570,15 @@
             setTimeout(() => {
                 overlay.style.display = 'none';
                 diceFace.style.color = '#000';
-                log(`🎲 ${p.name} moves ${finalRoll} spaces.`);
+                log(`🎲 ${p.name} rolled a ${finalRoll}.`);
                 moveTokenStepByStep(p, finalRoll, true);
             }, 800);
         }, 1000);
     });
 
-    // Step-by-Step Movement (Fixes the teleporting issue safely)
+    // STEP-BY-STEP BOARD MOVEMENT
     function moveTokenStepByStep(p, spacesLeft, evaluateAfter = true) {
         if (spacesLeft === 0) {
-            // Reached destination, now evaluate rules
             let enemy = state.players.find(o => o.id !== p.id && o.pos === p.pos);
             if (enemy && evaluateAfter) {
                 log(`⚔️ ${p.name} landed on ${enemy.name}! DUEL INITIATED!`);
@@ -524,7 +594,6 @@
         let direction = spacesLeft > 0 ? 1 : -1;
         p.pos += direction;
 
-        // Wrap around logic
         if (p.pos >= 36) {
             p.pos = 0; p.laps++; gainAcorns(p, 2); log(`🏁 ${p.name} completed a lap! (+2 🌰)`);
             if(p.laps >= 3) {
@@ -537,10 +606,10 @@
 
         drawToken(p);
         
-        // Loop using setTimeout to create animation
+        // Timeout creates the hopping animation visually
         setTimeout(() => {
             moveTokenStepByStep(p, spacesLeft > 0 ? spacesLeft - 1 : spacesLeft + 1, evaluateAfter);
-        }, 200); // Speed of hopping
+        }, 200); 
     }
 
     function handleDuel(attacker, defender, callback) {
