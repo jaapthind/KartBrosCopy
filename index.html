@@ -2,754 +2,683 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ICE AGE: THE ACORN PURSUIT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Age: The Original Board Game</title>
     
     <style>
         /* ==========================================================================
-           1. CORE ENGINE VARIABLES & FONT IMPORT
+           1. CORE LAYOUT & CSS RESET
            ========================================================================== */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Arial', sans-serif; }
 
-        :root {
-            /* Liquid Glass Theme */
-            --glass-bg: rgba(15, 25, 35, 0.65);
-            --glass-panel: rgba(25, 35, 50, 0.8);
-            --glass-border: rgba(0, 229, 255, 0.3);
-            --glass-highlight: rgba(255, 255, 255, 0.15);
-            --glass-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
-            --glass-glow: 0 0 20px rgba(0, 229, 255, 0.15);
-            
-            /* Neon Palette */
-            --cyan: #00E5FF;
-            --gold: #FFC107;
-            --red: #FF1744;
-            --green: #00E676;
-            --purple: #D500F9;
-            --dark: #070b12;
-            --text-main: #f0f8ff;
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* Strict Reset */
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; outline: none; -webkit-tap-highlight-color: transparent; }
+        #ui-sidebar {
+            flex: 0 0 350px;
+            background: #2c3e50;
+            border-right: 5px solid #111;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 50;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        }
 
-        html, body {
-            width: 100vw; height: 100vh;
-            background-color: var(--dark);
-            color: var(--text-main); font-family: 'Montserrat', sans-serif;
-            overflow: hidden; touch-action: none;
+        #game-board-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+            background: #333;
+            position: relative;
         }
 
         /* ==========================================================================
-           2. AMBIENT & HARDWARE CANVAS LAYERS
+           2. FAITHFUL BOARD GRID (14x9 HOLLOW RING)
            ========================================================================== */
-        #layer-ambient, #layer-particles {
-            position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none;
+        #tactical-grid {
+            display: grid;
+            grid-template-columns: repeat(14, 85px);
+            grid-template-rows: repeat(9, 85px);
+            gap: 0;
+            position: relative;
+            background-color: #fff;
+            border: 8px solid #222;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
-        #layer-ambient { z-index: -10; filter: blur(60px); opacity: 0.6; }
-        #layer-particles { z-index: 9000; }
 
-        .liquid-glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px) saturate(150%);
-            -webkit-backdrop-filter: blur(20px) saturate(150%);
-            border: 1px solid var(--glass-border);
-            border-top: 1px solid var(--glass-highlight);
-            border-left: 1px solid var(--glass-highlight);
-            box-shadow: var(--glass-shadow), inset 0 0 30px rgba(0,0,0,0.5);
-            border-radius: 20px;
+        /* The 4 Quadrants Background Emulation */
+        .quadrant { position: absolute; z-index: 0; }
+        .quad-grassy { top: 0; left: 0; width: 50%; height: 50%; background: #a5d6a7; border-bottom: 3px solid #333; border-right: 3px solid #333; }
+        .quad-mountains { top: 0; right: 0; width: 50%; height: 50%; background: #b0bec5; border-bottom: 3px solid #333; }
+        .quad-village { bottom: 0; left: 0; width: 50%; height: 50%; background: #d7ccc8; border-right: 3px solid #333; }
+        .quad-tundra { bottom: 0; right: 0; width: 50%; height: 50%; background: #e0f7fa; }
+
+        /* ==========================================================================
+           3. EXACT SPACE STYLING (Teal path, Red text, Black lines)
+           ========================================================================== */
+        .space {
+            background-color: #20b2aa; /* Exact Teal Path */
+            border: 3px solid #000;
+            color: #d50000; /* Exact Red Text */
+            font-weight: 900;
+            font-size: 11px;
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px;
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+        }
+
+        .space-question {
+            font-size: 45px;
+            line-height: 1;
+            justify-content: center;
+        }
+
+        .jaap-stop-sign {
+            background-color: #cc0000;
+            color: #fff;
+            padding: 4px;
+            border: 2px solid #fff;
+            border-radius: 6px;
+            font-size: 11px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .token-nest {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            height: 25px;
+            gap: 2px;
+            justify-content: center;
+        }
+
+        .player-token {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.8);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
         }
 
         /* ==========================================================================
-           3. STRICT FLEX-CLAMP LAYOUT MATRIX
+           4. CENTER ISLAND (Title, Discard Pile, Trades Box)
            ========================================================================== */
-        #game-client {
-            display: flex; width: 100%; height: 100%;
-            padding: clamp(10px, 2vmin, 20px); gap: clamp(10px, 2vmin, 20px);
-            position: relative; z-index: 10;
+        #center-island {
+            grid-area: 2 / 2 / 9 / 14;
+            background: rgba(255,255,255,0.2);
+            z-index: 5;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
         }
 
-        @media (max-width: 1000px), (orientation: portrait) {
-            #game-client { flex-direction: column; }
-            #ui-sector { flex: 1 1 45% !important; max-width: 100% !important; height: auto !important; }
-            #board-sector { flex: 1 1 55% !important; }
+        .center-title {
+            font-size: 120px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 5px 5px 0px #20b2aa, -5px -5px 0px #20b2aa, 5px -5px 0px #20b2aa, -5px 5px 0px #20b2aa;
+            letter-spacing: 10px;
+            opacity: 0.9;
         }
 
-        #board-sector {
-            flex: 1 1 auto; display: flex; align-items: center; justify-content: center;
-            min-width: 0; min-height: 0;
+        .discard-pile-ui {
+            position: absolute;
+            right: 40px;
+            bottom: 40px;
+            width: 160px;
+            height: 220px;
+            background: #7b68ee;
+            border: 4px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00008b;
+            font-size: 30px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 10px 10px 0 rgba(0,0,0,0.5);
+            pointer-events: auto;
         }
 
-        #board-clamp {
-            width: 100%; height: 100%; max-width: 100%; max-height: 100%;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        #tactical-board {
-            display: grid; 
-            width: 100%; height: 100%; max-width: 100%; max-height: 100%;
-            aspect-ratio: var(--board-ratio, 1/1);
-            padding: clamp(4px, 1vmin, 12px); gap: clamp(2px, 0.5vmin, 6px);
-            background: rgba(0,0,0,0.6); border-radius: 16px;
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.9), 0 0 20px rgba(0,229,255,0.1);
-        }
-
-        #ui-sector {
-            flex: 0 0 420px; max-width: 420px;
-            display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 0;
+        .villager-trades-ui {
+            position: absolute;
+            left: 40px;
+            bottom: 40px;
+            background: #add8e6;
+            border: 4px solid #000;
+            padding: 15px;
+            color: #000;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 10px 10px 0 rgba(0,0,0,0.5);
+            pointer-events: auto;
         }
 
         /* ==========================================================================
-           4. PROCEDURAL SPACES & CSS ART TERRAINS
+           5. HUD, TERMINAL & MODALS
            ========================================================================== */
-        .board-space {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 6px; border: 2px solid rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: clamp(0.5rem, 1.2vmin, 0.9rem); font-weight: 900;
-            color: #111; text-align: center; text-transform: uppercase;
-            position: relative; z-index: 10; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            cursor: pointer; overflow: hidden; padding: 2px;
-            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.4);
-        }
-        .board-space:hover { transform: scale(1.15); z-index: 100; box-shadow: 0 10px 20px var(--cyan); }
-
-        .space-start { background: linear-gradient(135deg, var(--gold), #fff) !important; color: #000; font-size: 1.1em; box-shadow: 0 0 15px var(--gold); }
-        .space-harvest { background: #e0f2fe !important; color: #0369a1; }
-        .space-hazard { background: #fee2e2 !important; color: #b91c1c; }
-        .space-shop { background: linear-gradient(135deg, #e1bee7, #ce93d8) !important; color: #4a148c; }
-        .space-vault { background: linear-gradient(135deg, var(--green), #bbf7d0) !important; color: #064e3b; }
-        .space-event { background: #ffedd5 !important; color: #c2410c; }
-
-        #center-core {
-            grid-column: 2 / -2; grid-row: 2 / -2;
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
-            border-radius: 12px; overflow: hidden; z-index: 1;
-            box-shadow: inset 0 0 80px rgba(0,0,0,1);
-            border: 2px solid rgba(255,255,255,0.1);
-        }
-        
-        .biome { position: relative; overflow: hidden; }
-        .biome-grass { background: linear-gradient(120deg, #558b2f, #7cb342, #33691e); background-size: 200% 200%; animation: bgShift 6s ease-in-out infinite; }
-        .biome-grass::after { content: ''; position: absolute; inset: -50%; background: repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(255,255,255,0.08) 30px, rgba(255,255,255,0.08) 60px); animation: slideWind 3s linear infinite; transform: rotate(-15deg); }
-        .biome-peaks { background: linear-gradient(180deg, #37474f, #1c313a); }
-        .biome-peaks::before, .biome-peaks::after { content: ''; position: absolute; bottom: 0; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-        .biome-peaks::before { background: #546e7a; width: 120%; height: 70%; left: -10%; animation: panMountain 12s linear infinite alternate; }
-        .biome-peaks::after { background: #78909c; width: 80%; height: 50%; left: 30%; animation: panMountain 8s linear infinite alternate-reverse; }
-        .biome-village { background: radial-gradient(circle at 50% 60%, #e65100 0%, #5d4037 50%, #111 100%); background-size: 150% 150%; animation: firePulse 1.5s infinite alternate; }
-        .biome-village::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 60%); animation: flicker 0.3s infinite alternate; }
-        .biome-tundra { background: linear-gradient(to bottom, #b2ebf2, #0097a7); }
-        .biome-tundra::before { content: ''; position: absolute; top: -100%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, #FFF 3px, transparent 4px), radial-gradient(circle, #FFF 1px, transparent 2px); background-size: 40px 40px, 20px 20px; animation: blizzardFall 2.5s linear infinite; transform: rotate(15deg); }
-
-        @keyframes bgShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes slideWind { from { transform: translateX(0) rotate(-15deg); } to { transform: translateX(60px) rotate(-15deg); } }
-        @keyframes panMountain { 0% { transform: translateX(-5%); } 100% { transform: translateX(5%); } }
-        @keyframes firePulse { 0% { background-position: 50% 50%; } 100% { background-position: 50% 40%; } }
-        @keyframes flicker { 0% { opacity: 0.6; } 100% { opacity: 1; } }
-        @keyframes blizzardFall { from { transform: translateY(0) rotate(15deg); } to { transform: translateY(80px) rotate(15deg); } }
-
-        /* ==========================================================================
-           5. GAME TOKENS & PHYSICS
-           ========================================================================== */
-        .token-nest { position: absolute; bottom: 2px; left: 0; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; pointer-events: none; }
-        .entity-token {
-            width: clamp(14px, 2.5vmin, 32px); height: clamp(14px, 2.5vmin, 32px);
-            border-radius: 50%; border: 2px solid #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: clamp(8px, 1.5vmin, 18px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.6);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .anim-hop { animation: trajectoryHop 0.25s ease-out; }
-        @keyframes trajectoryHop { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-25px) scale(1.2); } }
-
-        /* ==========================================================================
-           6. HUD, INVENTORY & CONTROLS
-           ========================================================================== */
-        #hud-container { flex: 1 1 auto; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 10px; }
-
         .player-card {
-            padding: 12px; border-radius: 14px; background: rgba(0,0,0,0.5);
-            border-left: 6px solid transparent; transition: all 0.3s ease;
-            display: flex; flex-direction: column; gap: 8px; position: relative;
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: 0.3s;
         }
-        .player-card.active-turn { 
-            background: linear-gradient(90deg, rgba(0,229,255,0.1), rgba(0,0,0,0.5)); 
-            border-left-width: 12px; transform: translateX(6px); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+        .player-card.active {
+            background: #fff;
+            color: #000;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
         }
 
-        .card-header { display: flex; justify-content: space-between; align-items: center; }
-        .entity-name { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; }
-        .entity-wealth { color: var(--gold); font-size: 1.5rem; font-weight: 900; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
-        
-        .inv-grid { display: flex; flex-wrap: wrap; gap: 5px; min-height: 24px; }
-        .item-pill { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; border: 1px solid transparent; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
-        .item-pill:hover { background: var(--cyan); color: #000; border-color: #fff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,229,255,0.4); }
-
-        #command-center { flex: 0 0 auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        
-        .btn {
-            background: linear-gradient(180deg, var(--cyan), #0097A7);
-            border: none; padding: 16px; font-family: inherit; font-size: 1.3rem; font-weight: 900;
-            border-radius: 12px; cursor: pointer; color: #000; text-transform: uppercase;
-            box-shadow: 0 6px 0 #006064, 0 10px 20px rgba(0,0,0,0.5); transition: 0.1s;
+        .btn-roll {
+            background: #ff9800;
+            border: 3px solid #e65100;
+            color: #000;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: 900;
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-transform: uppercase;
         }
-        .btn:active { transform: translateY(6px); box-shadow: 0 0px 0 #006064, 0 5px 10px rgba(0,0,0,0.5); }
-        .btn:disabled { background: #333; box-shadow: 0 6px 0 #111; color: #666; cursor: not-allowed; }
-        .btn-info { background: linear-gradient(180deg, #607D8B, #37474F); box-shadow: 0 6px 0 #263238; color: #fff; font-size: 1rem; padding: 12px; }
+        .btn-roll:hover { background: #ffb74d; }
+        .btn-roll:disabled { background: #555; border-color: #333; color: #888; cursor: not-allowed; }
 
-        #terminal-output {
-            height: 120px; background: rgba(0,0,0,0.8); border-radius: 10px;
-            padding: 10px; font-family: 'Courier New', monospace; font-size: 0.8rem;
-            overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
-            border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 0 20px rgba(0,0,0,1);
+        #terminal {
+            flex: 1;
+            background: #000;
+            border: 2px solid #555;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            color: #0f0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
-        .term-line { color: #94a3b8; animation: slideInLeft 0.2s ease-out forwards; opacity: 0; transform: translateX(-10px); }
-        .term-line strong { color: var(--cyan); }
-        .term-line.alert { color: var(--gold); }
-        .term-line.danger { color: var(--red); }
-        @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
 
-        /* ==========================================================================
-           7. MODALS & INSTRUCTIONS
-           ========================================================================== */
-        .overlay-mask { position: fixed; inset: 0; background: rgba(5,10,15,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 15px; }
-        .modal-box { width: 100%; max-width: 650px; max-height: 95vh; overflow-y: auto; padding: 35px; text-align: center; position: relative; }
-        
-        .config-row { background: rgba(0,0,0,0.5); padding: 12px; border-radius: 10px; display: flex; gap: 12px; margin-bottom: 12px; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
-        .config-row select, .config-row input { flex: 1; background: #000; border: 1px solid var(--cyan); color: #fff; padding: 12px; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: bold; }
-        
-        .instr-list { text-align: left; display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
-        .instr-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 4px solid var(--cyan); font-size: 0.95rem; line-height: 1.4; }
-        .instr-item b { color: var(--gold); }
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal {
+            background: #fff; color: #000; padding: 30px; border: 5px solid #000;
+            max-width: 500px; text-align: center; border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,1);
+        }
+        .modal h2 { color: #d50000; font-size: 32px; margin-bottom: 15px; text-transform: uppercase; }
+        .modal p { font-size: 20px; font-weight: bold; margin-bottom: 25px; }
+        .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .modal-btn { background: #20b2aa; border: 3px solid #000; padding: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .modal-btn:hover { background: #48d1cc; }
 
-        .shop-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
-        .shop-card { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 10px; transition: 0.2s; }
-        .shop-card:hover { border-color: var(--cyan); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,229,255,0.15); }
-        .recipe-cost { display: flex; justify-content: center; gap: 10px; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; color: var(--gold); }
-        
-        .dice-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        .dice-cube { width: 140px; height: 140px; background: #fff; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 80px; color: #000; box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 -10px 20px rgba(0,0,0,0.2); border: 4px solid #eee; }
-        .anim-rumble { animation: rumbleShake 0.2s infinite; }
-        @keyframes rumbleShake { 0% { transform: translate(3px, 3px) rotate(0deg); } 25% { transform: translate(-3px, -2px) rotate(-5deg); } 50% { transform: translate(0px, 4px) rotate(5deg); } 75% { transform: translate(3px, -2px) rotate(-2deg); } 100% { transform: translate(-2px, 3px) rotate(2deg); } }
-
-        .float-fx { position: absolute; font-weight: 900; font-size: 2.5rem; pointer-events: none; z-index: 9500; animation: floatUpFade 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; text-shadow: 0 4px 15px rgba(0,0,0,0.9); }
-        @keyframes floatUpFade { 0% { opacity: 0; transform: translateY(20px) scale(0.5); } 20% { opacity: 1; transform: translateY(0) scale(1.2); } 100% { opacity: 0; transform: translateY(-80px) scale(1); } }
     </style>
 </head>
 <body>
 
-    <canvas id="layer-ambient"></canvas>
-    <canvas id="layer-particles"></canvas>
+    <aside id="ui-sidebar">
+        <h1 style="text-align: center; color: #20b2aa; margin-bottom: 20px; font-size: 36px; text-shadow: 2px 2px 0 #000;">ICE AGE</h1>
+        <div id="players-hud"></div>
+        <button id="btn-roll" class="btn-roll" onclick="GameEngine.rollDice()">ROLL DICE 🎲</button>
+        <div id="terminal"></div>
+    </aside>
 
-    <div id="modal-config" class="overlay-mask" style="display: flex;">
-        <div class="modal-box liquid-glass">
-            <h1 style="font-size: 3rem; margin-bottom: 5px; color: #fff;">ICE AGE <span style="color: var(--gold);">ACORNS</span></h1>
-            <p style="color: #aaa; margin-bottom: 20px; font-weight: bold; letter-spacing: 2px;">THE SQUIRREL SURVIVAL EDITION</p>
+    <main id="game-board-container">
+        <div id="tactical-grid">
+            <div class="quadrant quad-grassy"></div>
+            <div class="quadrant quad-mountains"></div>
+            <div class="quadrant quad-village"></div>
+            <div class="quadrant quad-tundra"></div>
             
-            <div id="config-error" style="color:var(--red); font-weight:bold; margin-bottom:15px; display:none;"></div>
-
-            <div class="config-row">
-                <span style="width: 140px; text-align: left; font-weight: 900;">MAP SIZE:</span>
-                <select id="cfg-grid-size">
-                    <option value="36">Classic Grid (36 Spaces)</option>
-                    <option value="50" selected>Extended Grid (50 Spaces)</option>
-                </select>
-            </div>
-            
-            <div class="config-row">
-                <span style="width: 140px; text-align: left; font-weight: 900;">PLAYERS:</span>
-                <select id="cfg-entity-count">
-                    <option value="2">2 Players</option>
-                    <option value="3">3 Players</option>
-                    <option value="4" selected>4 Players</option>
-                </select>
-            </div>
-
-            <div id="entity-input-zone" style="margin-top: 20px;"></div>
-
-            <button class="btn" style="width: 100%; margin-top: 25px; background: linear-gradient(180deg, var(--gold), #FF8F00); box-shadow: 0 6px 0 #b45309;" onclick="Omega.initialize()">START HUNTING</button>
-            <button class="btn btn-info" style="width: 100%; margin-top: 10px;" onclick="Overlay.openInstructions()">HOW TO PLAY</button>
-        </div>
-    </div>
-
-    <div id="modal-instructions" class="overlay-mask">
-        <div class="modal-box liquid-glass" style="max-width: 700px;">
-            <h2 style="color: var(--gold); font-size: 2.5rem;">SURVIVAL MANUAL</h2>
-            
-            <div class="instr-list">
-                <div class="instr-item"><b>OBJECTIVE:</b> Secure 3 full orbits (laps) around the grid to win!</div>
-                <div class="instr-item"><b>THE STASH:</b> Everyone starts with 4 Golden Acorns (🌰).</div>
-                <div class="instr-item"><b>HOARDING:</b> Land on blue tiles to gather +1 or +2 Acorns. Passing Start also gives you +5 🌰!</div>
-                <div class="instr-item"><b>THE SHOP:</b> The purple SHOP spaces let you spend your hard-earned Acorns on power-ups.</div>
-                <div class="instr-item"><b>COMBAT:</b> Landing on an occupied space triggers a Duel. The winner steals 2 🌰!</div>
-                <div class="instr-item"><b>THE VAULT:</b> Tax events drain acorns into the Vault. Land on the Vault space to steal the jackpot!</div>
-            </div>
-
-            <button class="btn" style="width: 100%; background: linear-gradient(180deg, var(--gold), #FF8F00);" onclick="Overlay.close('modal-instructions')">GOT IT</button>
-        </div>
-    </div>
-
-    <main id="game-client" style="display: none;">
-        <section id="board-sector">
-            <div id="board-clamp">
-                <div id="tactical-board" class="liquid-glass">
-                    <div id="center-core">
-                        <div class="biome biome-grass"></div>
-                        <div class="biome biome-peaks"></div>
-                        <div class="biome biome-village"></div>
-                        <div class="biome biome-tundra"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="ui-sector">
-            <div id="hud-container" class="liquid-glass"></div>
-
-            <div id="command-center" class="liquid-glass">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-size: 0.8rem; color: #94a3b8; font-weight:bold; letter-spacing: 1px;">ACTIVE PLAYER</div>
-                        <h2 id="ui-active-name" style="font-size: 1.8rem; margin:0; line-height: 1;">---</h2>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 0.8rem; color: #94a3b8; font-weight:bold; letter-spacing: 1px;">VAULT 🌰</div>
-                        <h2 id="ui-vault-val" style="color: var(--green); font-size: 1.8rem; margin:0; line-height: 1;">0</h2>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 10px;">
-                    <button id="btn-trigger-roll" class="btn" style="flex: 1;" onclick="Omega.triggerRoll()">ROLL 🎲</button>
-                    <button class="btn btn-info" style="width: 60px; padding: 0;" onclick="Overlay.openInstructions()">?</button>
+            <div id="center-island">
+                <div class="center-title">ICE AGE</div>
+                
+                <div class="villager-trades-ui">
+                    <h3 style="border-bottom: 2px solid #000; margin-bottom: 5px;">Villager trades</h3>
+                    <p>4 🌰 = 1 Ally</p>
+                    <p>1 Ally = 2 🌰</p>
                 </div>
                 
-                <div id="terminal-output"></div>
+                <div class="discard-pile-ui">Discard<br>Pile</div>
             </div>
-        </section>
+            </div>
     </main>
 
-    <div id="modal-dice" class="overlay-mask">
-        <div class="dice-wrap">
-            <h2 id="dice-header" style="color: var(--cyan); font-size: 2.5rem; text-shadow: 0 0 20px rgba(0,229,255,0.4);"></h2>
-            <div class="dice-cube anim-rumble" id="dice-mesh">🎲</div>
+    <div id="modal-overlay" class="overlay">
+        <div class="modal">
+            <h2 id="modal-title">EVENT</h2>
+            <p id="modal-desc"></p>
+            <div id="modal-buttons" class="modal-buttons"></div>
         </div>
     </div>
-
-    <div id="modal-alert" class="overlay-mask">
-        <div class="modal-box liquid-glass" style="max-width: 500px;">
-            <h2 id="alert-title" style="font-size: 2.5rem; margin-bottom: 15px;"></h2>
-            <p id="alert-message" style="font-size: 1.2rem; margin-bottom: 25px; line-height: 1.5; color: #ddd;"></p>
-            <div id="alert-buttons"></div>
-        </div>
-    </div>
-
-    <div id="modal-shop" class="overlay-mask">
-        <div class="modal-box liquid-glass" style="max-width: 800px;">
-            <h2 style="color: var(--purple); font-size: 2.5rem;">ACORN SHOP</h2>
-            <div id="shop-wallet" style="margin: 15px 0; font-size: 1.5rem; font-weight: bold; color: var(--gold); background: rgba(0,0,0,0.6); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);"></div>
-            
-            <div class="shop-matrix" id="shop-items"></div>
-            
-            <button class="btn" style="width: 100%; background: #333; box-shadow: 0 6px 0 #111; color: #fff; margin-top: 10px;" onclick="Overlay.close('modal-shop'); Omega.finalizeTurn();">EXIT SHOP</button>
-        </div>
-    </div>
-
 
 <script>
 /**
  * ============================================================================
- * ICE AGE: THE ACORN PURSUIT
- * Pure Acorn-Hoarding Ruleset
+ * ICE AGE: THE ORIGINAL BOARD GAME ENGINE
+ * 100% faithful to the exact image layout, text, and custom mechanics.
  * ============================================================================
  */
 
-class WebAudioSynth {
-    constructor() {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        this.master = this.ctx.createGain(); this.master.gain.value = 0.15;
-        this.master.connect(this.ctx.destination);
-    }
-    _play(freq, type, dur, vol = 1) {
-        if (this.ctx.state === 'suspended') return;
-        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
-        osc.type = type; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
-        osc.connect(gain); gain.connect(this.master);
-        osc.start(); osc.stop(this.ctx.currentTime + dur);
-    }
-    sfxHop() { this._play(450, 'sine', 0.1, 0.5); setTimeout(() => this._play(650, 'sine', 0.15, 0.4), 80); }
-    sfxCoin() { this._play(1200, 'square', 0.1, 0.3); setTimeout(() => this._play(1800, 'square', 0.2, 0.3), 100); }
-    sfxImpact() { this._play(100, 'sawtooth', 0.4, 1.0); }
-    sfxBuy() { this._play(800, 'triangle', 0.15, 0.6); setTimeout(() => this._play(1200, 'triangle', 0.3, 0.6), 120); }
-    sfxError() { this._play(150, 'square', 0.3, 0.8); }
-    unlock() { if (this.ctx.state === 'suspended') this.ctx.resume(); }
-}
-const AudioSYS = new WebAudioSynth();
+// 1. EXACT SPACE TRANSCRIPTION
+const EXACT_BOARD_SPACES = [
+    { id: 0, text: "Start", type: "start" },
+    { id: 1, text: "Collect one golden acorn", type: "acorn", val: 1 },
+    { id: 2, text: "?", type: "question" },
+    { id: 3, text: "Choose an ally", type: "ally" },
+    { id: 4, text: "Go back to the start", type: "goto", target: 0 },
+    { id: 5, text: "1 more roll", type: "roll_again" },
+    { id: 6, text: "?", type: "question" },
+    { id: 7, text: "?", type: "question" },
+    { id: 8, text: "Advance 3 spaces", type: "move", val: 3 },
+    { id: 9, text: "Jaap STOP", type: "stop" },
+    { id: 10, text: "Advance to the next free space", type: "advance_target", targetType: "free" },
+    { id: 11, text: "?", type: "question" },
+    { id: 12, text: "Go to the next Jaap stop for 2 golden acorns", type: "advance_target_acorn", targetType: "stop", acornVal: 2 },
+    { id: 13, text: "Choose an ally", type: "ally" },
+    { id: 14, text: "?", type: "question" },
+    { id: 15, text: "Jaap STOP", type: "stop" },
+    { id: 16, text: "?", type: "question" },
+    { id: 17, text: "collect one golden acorn", type: "acorn", val: 1 },
+    { id: 18, text: "?", type: "question" },
+    { id: 19, text: "?", type: "question" },
+    { id: 20, text: "?", type: "question" },
+    { id: 21, text: "Move to the next ally space", type: "advance_target", targetType: "ally" },
+    { id: 22, text: "Jaap STOP", type: "stop" },
+    { id: 23, text: "?", type: "question" },
+    { id: 24, text: "Choose an ally", type: "ally" },
+    { id: 25, text: "Free space", type: "free" },
+    { id: 26, text: "Go on the bridge if you dare", type: "bridge" },
+    { id: 27, text: "Go back 4 spaces", type: "move", val: -4 },
+    { id: 28, text: "you lose two golden acorns", type: "lose", val: 2 },
+    { id: 29, text: "?", type: "question" },
+    { id: 30, text: "Trade with a villager if you want", type: "trade" },
+    { id: 31, text: "Free space", type: "free" },
+    { id: 32, text: "?", type: "question" },
+    { id: 33, text: "Collect one golden acorn from villager", type: "acorn", val: 1 },
+    { id: 34, text: "?", type: "question" },
+    { id: 35, text: "Go to the end for 4 golden acorns", type: "goto_end", target: 41, acornVal: 4 },
+    { id: 36, text: "Trade with a villager if you want", type: "trade" },
+    { id: 37, text: "Trade with a villager if you want", type: "trade" },
+    { id: 38, text: "Jaap STOP", type: "stop" },
+    { id: 39, text: "?", type: "question" },
+    { id: 40, text: "Move Back 8 spaces for 2 golden acorns", type: "move_acorn", val: -8, acornVal: 2 },
+    { id: 41, text: "End", type: "end" }
+];
 
-class ParticlePhysics {
-    constructor() {
-        this.canvas = document.getElementById('layer-particles');
-        this.ctx = this.canvas.getContext('2d');
-        this.pool = [];
-        this.resize(); window.addEventListener('resize', () => this.resize());
-        this._loop();
-    }
-    resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; }
-    burst(x, y, color, count) {
-        for (let i = 0; i < count; i++) {
-            let angle = Math.random() * Math.PI * 2, speed = Math.random() * 8 + 3;
-            this.pool.push({
-                x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 4,
-                life: 1.0, decay: Math.random() * 0.03 + 0.015, color: color, size: Math.random() * 6 + 2, g: 0.2
-            });
-        }
-    }
-    burstAt(domId, color, count) {
-        const el = document.getElementById(domId); if(!el) return;
-        const r = el.getBoundingClientRect();
-        this.burst(r.left + r.width/2, r.top + r.height/2, color, count);
-    }
-    _loop() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        for (let i = this.pool.length - 1; i >= 0; i--) {
-            let p = this.pool[i];
-            p.vy += p.g; p.x += p.vx; p.y += p.vy; p.life -= p.decay;
-            if (p.life <= 0) this.pool.splice(i, 1);
-            else {
-                this.ctx.globalAlpha = p.life; this.ctx.fillStyle = p.color;
-                this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); this.ctx.fill();
-            }
-        }
-        this.ctx.globalAlpha = 1.0; requestAnimationFrame(() => this._loop());
-    }
-}
-const ParticleSYS = new ParticlePhysics();
+// Original Deck Logic for "?" Spaces
+const EVENT_DECK = [
+    "You found a buried acorn! +1 🌰",
+    "A Sabertooth chased you! Lose 1 Ally or 2 🌰.",
+    "A Mammoth gave you a ride! Advance 2 spaces.",
+    "Slipped on the icy glacier! Move back 1 space.",
+    "Caught in an avalanche! Lose your next turn.",
+    "A villager dropped an acorn! +1 🌰",
+    "You befriended a stray dire wolf! +1 Ally.",
+    "The ice cracked! Lose 1 🌰."
+];
 
-(function initAmbient() {
-    const c = document.getElementById('layer-ambient'), ctx = c.getContext('2d');
-    function render() {
-        c.width = window.innerWidth; c.height = window.innerHeight;
-        let t = Date.now() * 0.0003; ctx.clearRect(0, 0, c.width, c.height);
-        const grad = (x, y, r, color) => {
-            let g = ctx.createRadialGradient(x,y,0,x,y,r);
-            g.addColorStop(0, color); g.addColorStop(1, 'transparent');
-            ctx.fillStyle = g; ctx.fillRect(0,0,c.width,c.height);
-        };
-        grad(c.width/2 + Math.sin(t)*300, c.height/2 + Math.cos(t)*200, 500, 'rgba(0, 229, 255, 0.08)');
-        grad(c.width/2 - Math.cos(t*1.2)*400, c.height/2 - Math.sin(t*1.2)*300, 600, 'rgba(213, 0, 249, 0.05)');
-        requestAnimationFrame(render);
-    }
-    render();
-})();
-
-const DB = {
-    colors: ['#00E5FF', '#D500F9', '#00E676', '#FFD700'],
-    icons: ['🐿️','🦣','🐻‍❄️','🐧','🐺','🦌','🦊','🦉'], // Squirrel is star of the show
-    profanity: /fuck|shit|bitch|nigg|cunt|whore|slut|fag|dick|pussy|cock/i,
-    
-    spaces: [
-        { name: '+1 🌰', action: 'acorns_1', css: 'space-harvest', w: 35 },
-        { name: '+2 🌰', action: 'acorns_2', css: 'space-harvest', w: 20 },
-        { name: 'SHOP', action: 'shop', css: 'space-shop', w: 15 },
-        { name: 'TRAP', action: 'trap', css: 'space-hazard', w: 10 },
-        { name: 'VAULT', action: 'vault', css: 'space-vault', w: 5 },
-        { name: 'EVENT', action: 'event', css: 'space-event', w: 15 }
+const GameState = {
+    players: [
+        { id: 0, name: "Scrat", icon: "🐿️", pos: 0, acorns: 0, allies: 0, skip: false, color: "#ff9800" },
+        { id: 1, name: "Manny", icon: "🦣", pos: 0, acorns: 0, allies: 0, skip: false, color: "#8d6e63" },
+        { id: 2, name: "Diego", icon: "🐯", pos: 0, acorns: 0, allies: 0, skip: false, color: "#f44336" },
+        { id: 3, name: "Sid", icon: "🦥", pos: 0, acorns: 0, allies: 0, skip: false, color: "#4caf50" }
     ],
-
-    items: {
-        'warp_drive': { name: 'Acorn Rocket', icon: '🚀', req: 3, desc: 'Instantly advance 6 spaces.' },
-        'aegis': { name: 'Nut Shield', icon: '🛡️', req: 4, desc: 'Absorbs next trap or duel loss.' },
-        'siphon': { name: 'Acorn Magnet', icon: '🧲', req: 5, desc: 'Steal 1 🌰 from all opponents.' }
-    }
+    turnIdx: 0,
+    isAnimating: false,
+    deck: [...EVENT_DECK],
+    discard: []
 };
 
-class Entity {
-    constructor(id, name, color, icon) {
-        this.id = id; this.name = name; this.color = color; this.icon = icon;
-        this.pos = 0; this.laps = 0; 
-        this.acorns = 4; // Start with 4 acorns as discussed!
-        this.inv = []; this.status = { skip: false, shield: false };
-    }
-    modifyWealth(amt) {
-        let actual = amt < 0 ? Math.min(this.acorns, Math.abs(amt)) : amt;
-        this.acorns += amt < 0 ? -actual : actual;
-        Overlay.floatText(`nest-${this.pos}`, amt < 0 ? `-${actual}` : `+${actual}`, amt < 0 ? 'var(--red)' : 'var(--green)');
-        return actual;
-    }
+// 2. GRID RENDERER (Builds the 14x9 Hollow Ring)
+function buildBoard() {
+    const grid = document.getElementById('tactical-grid');
+    
+    EXACT_BOARD_SPACES.forEach((space, i) => {
+        let el = document.createElement('div');
+        el.className = 'space';
+        
+        if (space.type === 'question') {
+            el.innerHTML = `<div class="space-question">?</div>`;
+            el.style.color = "#d50000";
+        } else if (space.type === 'stop') {
+            el.innerHTML = `<div class="jaap-stop-sign">${space.text}</div>`;
+        } else {
+            el.innerHTML = `<span>${space.text}</span>`;
+        }
+
+        // Token Container
+        let nest = document.createElement('div');
+        nest.className = 'token-nest';
+        nest.id = `nest-${i}`;
+        el.appendChild(nest);
+
+        // Map linear array to hollow 14x9 rectangle
+        let col, row;
+        if (i <= 13) {
+            row = 1; col = i + 1;
+        } else if (i <= 20) {
+            col = 14; row = (i - 13) + 1;
+        } else if (i <= 34) {
+            row = 9; col = 14 - (i - 21);
+        } else {
+            col = 1; row = 9 - (i - 34);
+        }
+
+        el.style.gridColumn = col;
+        el.style.gridRow = row;
+        grid.appendChild(el);
+    });
+
+    updateTokens();
+    renderHUD();
+    log("Game Initialized. Let the survival begin.");
 }
 
-const Omega = {
-    entities: [], gridConfig: [], width: 0, height: 0, size: 36,
-    state: { turnIdx: 0, vault: 0, isAnim: false },
-
-    initialize() {
-        AudioSYS.unlock();
-        const err = document.getElementById('config-error'); err.style.display = 'none';
-        this.size = parseInt(document.getElementById('cfg-grid-size').value);
+// 3. CORE LOGIC ENGINE
+const GameEngine = {
+    rollDice() {
+        if(GameState.isAnimating) return;
         
-        let halfP = (this.size + 4) / 2;
-        this.width = Math.ceil(halfP / 2); this.height = Math.floor(halfP / 2);
-
-        let eCount = parseInt(document.getElementById('cfg-entity-count').value);
-        this.entities = [];
-        for(let i=0; i<eCount; i++) {
-            let n = document.getElementById(`p${i}-name`).value.trim() || `Player-${i+1}`;
-            if(DB.profanity.test(n)) { err.innerText = "Error: Invalid name."; err.style.display = 'block'; AudioSYS.sfxError(); return; }
-            this.entities.push(new Entity(i, n, DB.colors[i], document.getElementById(`p${i}-icon`).value));
+        let p = GameState.players[GameState.turnIdx];
+        if(p.skip) {
+            log(`${p.name} is frozen and must skip this turn!`);
+            p.skip = false;
+            this.endTurn();
+            return;
         }
 
-        Overlay.close('modal-config');
-        document.getElementById('game-client').style.display = 'flex';
+        GameState.isAnimating = true;
+        document.getElementById('btn-roll').disabled = true;
         
-        GridBuilder.construct(this.width, this.height, this.size);
-        Interface.renderFull();
-        Overlay.log("=== THE HUNT BEGINS ===", "sys");
-        this.beginTurn();
+        let roll = Math.floor(Math.random() * 6) + 1;
+        log(`==> <strong>${p.icon} ${p.name}</strong> rolled a <strong>${roll}</strong>!`);
+        
+        this.stepPlayer(p, roll, false);
     },
 
-    beginTurn() {
-        let e = this.entities[this.state.turnIdx];
-        Interface.updateHeader(e); Interface.renderFull();
-
-        if (e.status.skip) {
-            Overlay.log(`<strong>${e.name}</strong> is trapped. Skip turn.`, "danger");
-            e.status.skip = false; setTimeout(() => this.finalizeTurn(), 1200); return;
-        }
-        document.getElementById('btn-trigger-roll').disabled = false;
-    },
-
-    triggerRoll() {
-        if(this.state.isAnim) return; this.state.isAnim = true;
-        document.getElementById('btn-trigger-roll').disabled = true;
-        let e = this.entities[this.state.turnIdx], roll = Math.floor(Math.random() * 6) + 1;
-
-        Overlay.diceCinematic(e, roll, () => {
-            Overlay.log(`<strong>${e.name}</strong> rolled a ${roll}.`);
-            this.executeMovement(e, roll, true);
-        });
-    },
-
-    executeMovement(e, steps, evaluate) {
-        if (steps === 0) {
-            this.state.isAnim = false;
-            let el = document.getElementById(`tok-${e.id}`); if(el) el.classList.remove('anim-hop');
-            if(evaluate) this.evaluateSector(e); return;
+    stepPlayer(p, stepsLeft, ignoreStops) {
+        if(stepsLeft === 0) {
+            GameState.isAnimating = false;
+            this.resolveSpace(p, EXACT_BOARD_SPACES[p.pos]);
+            return;
         }
 
-        let dir = steps > 0 ? 1 : -1; e.pos += dir;
+        let dir = stepsLeft > 0 ? 1 : -1;
+        let nextPos = p.pos + dir;
+        
+        if(nextPos > 41) nextPos = 41;
+        if(nextPos < 0) nextPos = 0;
 
-        if (e.pos >= this.size) {
-            e.pos = 0; e.laps++;
-            if(e.laps > 0) {
-                e.modifyWealth(5); Overlay.log(`<strong>${e.name}</strong> completed an orbit! +5 🌰`, 'alert');
-                AudioSYS.sfxCoin(); ParticleSYS.burstAt('center-core', varColor('--gold'), 40);
-                if (e.laps >= 3) { this.triggerVictory(e); return; }
-            }
-        } else if (e.pos < 0) { e.pos = this.size - 1; e.laps--; }
+        p.pos = nextPos;
+        updateTokens();
+        this.playBeep();
 
-        GridBuilder.placeToken(e, true); AudioSYS.sfxHop();
-        setTimeout(() => this.executeMovement(e, steps > 0 ? steps - 1 : steps + 1, evaluate), 200);
-    },
-
-    evaluateSector(e) {
-        let target = this.entities.find(o => o.id !== e.id && o.pos === e.pos && e.pos !== 0);
-        if (target) {
-            Overlay.log(`DUEL: <strong>${e.name}</strong> vs <strong>${target.name}</strong>!`, 'danger');
-            this.executeCombat(e, target, () => this.processSectorLogic(e)); return;
+        // Check for "Jaap STOP" interrupting movement
+        if(!ignoreStops && dir > 0 && EXACT_BOARD_SPACES[nextPos].type === 'stop') {
+            log(`🛑 ${p.name} was halted by a Jaap STOP sign!`);
+            GameState.isAnimating = false;
+            this.resolveSpace(p, EXACT_BOARD_SPACES[nextPos]);
+            return;
         }
-        this.processSectorLogic(e);
+
+        setTimeout(() => {
+            this.stepPlayer(p, dir > 0 ? stepsLeft - 1 : stepsLeft + 1, ignoreStops);
+        }, 300);
     },
 
-    executeCombat(a, d, cb) {
-        let win = Math.random() > 0.5 ? a : d, lose = win === a ? d : a;
-        Overlay.alert("COMBAT", `${win.name} overpowered ${lose.name}!`, () => {
-            if(lose.status.shield) { Overlay.log(`${lose.name}'s Nut Shield absorbed the hit!`); lose.status.shield = false; ParticleSYS.burstAt(`tok-${lose.id}`, varColor('--cyan'), 20); } 
-            else { let st = lose.modifyWealth(-2); win.modifyWealth(st); AudioSYS.sfxImpact(); }
-            cb();
-        });
-    },
-
-    processSectorLogic(e) {
-        let sector = this.gridConfig[e.pos]; Overlay.log(`Landed on [${sector.name}]`);
-        if(sector.action === 'trap' && e.status.shield) { Overlay.log(`Trap blocked by Shield.`, 'sys'); e.status.shield = false; ParticleSYS.burstAt(`tok-${e.id}`, varColor('--cyan'), 20); this.finalizeTurn(); return; }
-
-        switch(sector.action) {
-            case 'start': this.finalizeTurn(); break;
-            case 'acorns_1': e.modifyWealth(1); AudioSYS.sfxCoin(); this.finalizeTurn(); break;
-            case 'acorns_2': e.modifyWealth(2); AudioSYS.sfxCoin(); this.finalizeTurn(); break;
-            case 'shop': Overlay.openShop(e); break;
-            case 'trap': e.status.skip = true; AudioSYS.sfxImpact(); Overlay.alert("TRAP", "Caught! Lose next turn.", () => this.finalizeTurn()); break;
-            case 'vault':
-                if(this.state.vault > 0) {
-                    let v = this.state.vault; this.state.vault = 0; e.modifyWealth(v); AudioSYS.sfxCoin();
-                    ParticleSYS.burstAt(`nest-${e.pos}`, varColor('--green'), 50); Overlay.alert("VAULT BREACHED", `Secured ${v} 🌰!`, () => this.finalizeTurn());
-                } else { Overlay.log("Vault is empty."); this.finalizeTurn(); }
+    resolveSpace(p, space) {
+        log(`Landed on: [${space.text}]`);
+        
+        switch(space.type) {
+            case 'start':
+            case 'free':
+                this.endTurn(); break;
+            
+            case 'acorn':
+                p.acorns += space.val; 
+                log(`${p.name} gained ${space.val} 🌰.`); 
+                this.endTurn(); break;
+            
+            case 'lose':
+                p.acorns = Math.max(0, p.acorns - space.val);
+                log(`${p.name} lost ${space.val} 🌰.`);
+                this.endTurn(); break;
+            
+            case 'ally':
+                p.allies += 1;
+                log(`${p.name} gained 1 Ally 🤝.`);
+                this.endTurn(); break;
+            
+            case 'goto':
+                this.stepPlayer(p, space.target - p.pos, true); break;
+            
+            case 'move':
+                this.stepPlayer(p, space.val, false); break;
+            
+            case 'move_acorn':
+                p.acorns += space.acornVal;
+                log(`${p.name} collected ${space.acornVal} 🌰!`);
+                this.stepPlayer(p, space.val, true); break;
+            
+            case 'goto_end':
+                p.acorns += space.acornVal;
+                log(`${p.name} collected ${space.acornVal} 🌰 for reaching the end!`);
+                this.stepPlayer(p, space.target - p.pos, true); break;
+            
+            case 'roll_again':
+                log(`${p.name} gets another turn!`);
+                GameState.isAnimating = false;
+                document.getElementById('btn-roll').disabled = false;
                 break;
-            case 'event': this.triggerRandomEvent(e); break;
-            default: this.finalizeTurn();
+            
+            case 'stop':
+                // Just forced to stop, nothing else happens
+                this.endTurn(); break;
+            
+            case 'advance_target':
+                let tgt = EXACT_BOARD_SPACES.findIndex((s, i) => i > p.pos && s.type === space.targetType);
+                if(tgt > -1) this.stepPlayer(p, tgt - p.pos, true);
+                else this.endTurn();
+                break;
+            
+            case 'advance_target_acorn':
+                let t = EXACT_BOARD_SPACES.findIndex((s, i) => i > p.pos && s.type === space.targetType);
+                if(t > -1) {
+                    p.acorns += space.acornVal;
+                    log(`Collected ${space.acornVal} 🌰!`);
+                    this.stepPlayer(p, t - p.pos, true);
+                } else this.endTurn();
+                break;
+            
+            case 'bridge':
+                this.handleBridge(p); break;
+            
+            case 'trade':
+                this.handleTrade(p); break;
+            
+            case 'question':
+                this.drawCard(p); break;
+            
+            case 'end':
+                log(`🏁 ${p.name} reached the finish line!`);
+                this.endTurn(); break;
         }
+        renderHUD();
     },
 
-    triggerRandomEvent(e) {
-        let evs = [
-            { t: "LUCKY FIND", d: "Found an abandoned stash! +3 🌰", f: () => { e.modifyWealth(3); this.finalizeTurn(); } },
-            { t: "WINTER TAX", d: "A blizzard hit. Drop 2 🌰 into the vault.", f: () => { let l = e.modifyWealth(-2); this.state.vault += l; this.finalizeTurn(); } },
-            { t: "WIND GUST", d: "Blown forward! Advance 4 spaces.", f: () => { this.state.isAnim = true; this.executeMovement(e, 4, true); } }
-        ];
-        let rnd = evs[Math.floor(Math.random()*evs.length)]; Overlay.alert(`EVENT: ${rnd.t}`, rnd.d, rnd.f);
+    handleBridge(p) {
+        Modal.show("ICE BRIDGE", "You step onto the rickety ice bridge! Roll the die to see if you survive.<br><br><b>4-6:</b> Safe! (+2 🌰)<br><b>1-3:</b> The ice breaks! (Go back 3 spaces)", [
+            { text: "ROLL FOR SURVIVAL", action: () => {
+                let r = Math.floor(Math.random() * 6) + 1;
+                if(r >= 4) {
+                    p.acorns += 2;
+                    Modal.show("SAFE!", `You rolled a ${r}. You made it across! (+2 🌰)`, [{ text: "PHEW", action: () => this.endTurn() }]);
+                } else {
+                    Modal.show("CRACK!", `You rolled a ${r}. The bridge collapsed!`, [{ text: "FALL BACK", action: () => this.stepPlayer(p, -3, true) }]);
+                }
+            }}
+        ]);
     },
 
-    buyItem(e, k) {
-        let price = DB.items[k].req;
-        if(e.acorns < price) return false;
+    handleTrade(p) {
+        Modal.show("VILLAGER TRADES", `Welcome to the village. What would you like to trade?`, [
+            { text: "4 🌰 -> 1 Ally", action: () => {
+                if(p.acorns >= 4) { p.acorns -= 4; p.allies += 1; log(`${p.name} traded 4 🌰 for 1 Ally.`); renderHUD(); }
+                else alert("Not enough Acorns!");
+            }},
+            { text: "1 Ally -> 2 🌰", action: () => {
+                if(p.allies >= 1) { p.allies -= 1; p.acorns += 2; log(`${p.name} traded 1 Ally for 2 🌰.`); renderHUD(); }
+                else alert("Not enough Allies!");
+            }},
+            { text: "DONE TRADING", action: () => this.endTurn() }
+        ]);
+    },
+
+    drawCard(p) {
+        if(GameState.deck.length === 0) {
+            GameState.deck = [...GameState.discard].sort(() => Math.random() - 0.5);
+            GameState.discard = [];
+            log("Discard pile reshuffled into deck.");
+        }
         
-        e.modifyWealth(-price); e.inv.push(k);
-        AudioSYS.sfxBuy(); Overlay.log(`Bought [${DB.items[k].name}].`, 'sys');
-        Interface.renderFull(); Overlay.openShop(e);
-    },
-
-    deployItem(eId, k) {
-        if(this.state.isAnim) return; let e = this.entities.find(x => x.id === eId);
-        if(!e || this.state.turnIdx !== e.id) return;
-
-        let idx = e.inv.indexOf(k);
-        if(idx > -1) {
-            e.inv.splice(idx, 1); let item = DB.items[k];
-            Overlay.log(`Used ${item.icon} ${item.name}!`, 'alert'); AudioSYS.sfxBuy();
-
-            switch(k) {
-                case 'warp_drive': this.state.isAnim = true; this.executeMovement(e, 6, true); break;
-                case 'aegis': e.status.shield = true; GridBuilder.placeToken(e); break;
-                case 'siphon': 
-                    this.entities.forEach(t => { if(t.id !== e.id) { if(!t.status.shield && t.acorns > 0) { t.modifyWealth(-1); e.modifyWealth(1); } else if(t.status.shield) { t.status.shield = false; Overlay.log(`${t.name}'s shield blocked siphon!`); } } }); break;
+        let card = GameState.deck.pop();
+        GameState.discard.push(card);
+        
+        Modal.show("DISCARD PILE EVENT", card, [{ text: "ACCEPT FATE", action: () => {
+            if(card.includes("+1 🌰")) p.acorns += 1;
+            if(card.includes("-1 🌰")) p.acorns = Math.max(0, p.acorns - 1);
+            if(card.includes("+3 🌰")) p.acorns += 3;
+            if(card.includes("+1 Ally")) p.allies += 1;
+            if(card.includes("Lose 1 Ally or 2 🌰")) {
+                if(p.allies > 0) p.allies--; else p.acorns = Math.max(0, p.acorns - 2);
             }
-            Interface.renderFull();
-        }
+            if(card.includes("back 1 space")) return this.stepPlayer(p, -1, true);
+            if(card.includes("back 2 spaces")) return this.stepPlayer(p, -2, true);
+            if(card.includes("Advance 2 spaces")) return this.stepPlayer(p, 2, true);
+            if(card.includes("Advance 3 spaces")) return this.stepPlayer(p, 3, true);
+            if(card.includes("Lose your next turn")) p.skip = true;
+            
+            this.endTurn();
+        }}]);
     },
 
-    finalizeTurn() { this.state.turnIdx = (this.state.turnIdx + 1) % this.entities.length; this.beginTurn(); },
-    triggerVictory(e) { document.getElementById('game-client').style.filter = 'blur(15px)'; Overlay.alert("VICTORY", `<strong>${e.name.toUpperCase()}</strong> completed 3 laps and won the game!`, () => location.reload()); }
-};
-
-const GridBuilder = {
-    construct(w, h, size) {
-        const grid = document.getElementById('tactical-board');
-        grid.style.gridTemplateColumns = `repeat(${w}, 1fr)`; grid.style.gridTemplateRows = `repeat(${h}, 1fr)`;
-        grid.style.setProperty('--board-ratio', `${w}/${h}`);
+    endTurn() {
+        GameState.isAnimating = false;
         
-        Array.from(grid.children).forEach(c => { if(c.id !== 'center-core') c.remove(); });
+        // Check End Game (If everyone is at space 41)
+        if(GameState.players.every(pl => pl.pos === 41)) {
+            let winner = [...GameState.players].sort((a,b) => b.acorns - a.acorns)[0];
+            Modal.show("GAME OVER", `All players have reached the End!<br><br>The winner is <strong>${winner.name}</strong> with ${winner.acorns} Golden Acorns!`, [
+                { text: "PLAY AGAIN", action: () => location.reload() }
+            ]);
+            return;
+        }
 
-        let coords = [];
-        for(let c=1; c<=w; c++) coords.push({c,r:1}); for(let r=2; r<=h; r++) coords.push({c:w,r});
-        for(let c=w-1; c>=1; c--) coords.push({c,r:h}); for(let r=h-1; r>=2; r--) coords.push({c:1,r});
+        do {
+            GameState.turnIdx = (GameState.turnIdx + 1) % GameState.players.length;
+        } while (GameState.players[GameState.turnIdx].pos === 41); // Skip finished players
 
-        const getSpace = () => { let r = Math.random() * 100, s = 0; for(let bp of DB.spaces) { s += bp.w; if(r <= s) return bp; } return DB.spaces[0]; };
-
-        coords.forEach((cd, i) => {
-            let d = (i === 0) ? {name:'START', action:'start', css:'space-start'} : getSpace();
-            Omega.gridConfig[i] = d;
-            let el = document.createElement('div'); el.className = `board-space ${d.css}`;
-            el.style.gridColumn = cd.c; el.style.gridRow = cd.r;
-            el.innerHTML = `<span>${d.name}</span><div class="token-nest" id="nest-${i}"></div>`;
-            grid.appendChild(el);
-        });
-        Omega.entities.forEach(e => this.placeToken(e));
+        document.getElementById('btn-roll').disabled = false;
+        renderHUD();
     },
 
-    placeToken(e, hop = false) {
-        let old = document.getElementById(`tok-${e.id}`); if(old) old.remove();
-        let tok = document.createElement('div'); tok.id = `tok-${e.id}`; tok.className = `entity-token ${hop ? 'anim-hop' : ''}`;
-        tok.style.background = `linear-gradient(135deg, ${e.color}, #000)`; tok.innerText = e.icon;
-        if(e.status.shield) tok.style.boxShadow = `0 0 15px var(--cyan), inset 0 0 10px #fff`;
-        document.getElementById(`nest-${e.pos}`).appendChild(tok);
+    playBeep() {
+        try {
+            let ctx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = ctx.createOscillator();
+            let gain = ctx.createGain();
+            osc.type = 'sine'; osc.frequency.value = 600;
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
     }
 };
 
-const Interface = {
-    setupInit() {
-        const zone = document.getElementById('entity-input-zone');
-        document.getElementById('cfg-entity-count').addEventListener('change', e => {
-            zone.innerHTML = '';
-            for(let i=0; i<e.target.value; i++) {
-                zone.innerHTML += `
-                    <div class="config-row">
-                        <div style="width:20px;height:20px;border-radius:50%;background:${DB.colors[i]};box-shadow:0 0 10px ${DB.colors[i]}"></div>
-                        <input type="text" id="p${i}-name" value="Player-${i+1}" maxlength="10">
-                        <select id="p${i}-icon" style="flex:0 0 70px; text-align:center;">${DB.icons.map(x=>`<option>${x}</option>`).join('')}</select>
-                    </div>`;
-            }
-        }); document.getElementById('cfg-entity-count').dispatchEvent(new Event('change'));
-    },
-    renderFull() {
-        const hud = document.getElementById('hud-container'); hud.innerHTML = '';
-        Omega.entities.forEach((e, i) => {
-            let active = i === Omega.state.turnIdx ? 'active-turn' : '';
-            let invHTML = e.inv.map(k => `<span class="item-pill" onclick="Omega.deployItem(${e.id},'${k}')">${DB.items[k].icon} ${DB.items[k].name}</span>`).join('');
-            hud.innerHTML += `
-                <div class="player-card ${active}" style="border-left-color: ${e.color}">
-                    <div class="card-header"><span class="entity-name">${e.icon} ${e.name}</span><span class="entity-wealth">${e.acorns} 🌰</span></div>
-                    <div style="font-size:0.8rem; color:#aaa; display:flex; justify-content:space-between; margin-top:5px;"><span>Laps Completed: ${e.laps}/3</span>${e.status.shield ? '<span style="color:var(--cyan)">🛡️ SHIELD</span>' : ''}${e.status.skip ? '<span style="color:var(--red)">❄️ TRAPPED</span>' : ''}</div>
-                    <div class="inv-grid" style="margin-top: 5px;">${invHTML}</div>
-                </div>`;
+// 4. UI CONTROLLERS
+const Modal = {
+    show(title, text, buttons) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-desc').innerHTML = text;
+        let box = document.getElementById('modal-buttons');
+        box.innerHTML = '';
+        
+        buttons.forEach(b => {
+            let btn = document.createElement('button');
+            btn.className = 'modal-btn';
+            btn.innerText = b.text;
+            btn.onclick = () => {
+                document.getElementById('modal-overlay').style.display = 'none';
+                b.action();
+            };
+            box.appendChild(btn);
         });
-        document.getElementById('ui-vault-val').innerText = Omega.state.vault;
-    },
-    updateHeader(e) { let h = document.getElementById('ui-active-name'); h.innerText = e.name; h.style.color = e.color; }
+        
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
 };
 
-const Overlay = {
-    log(str, type = '') {
-        const t = document.getElementById('terminal-output');
-        let d = new Date(), ts = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-        t.innerHTML = `<div class="term-line ${type}">[${ts}] > ${str}</div>` + t.innerHTML;
-    },
-    floatText(id, txt, color) {
-        let el = document.getElementById(id); if(!el) return;
-        let r = el.getBoundingClientRect(), f = document.createElement('div');
-        f.className = 'float-fx'; f.innerText = txt; f.style.color = color;
-        f.style.left = (r.left + r.width/2 - 20) + 'px'; f.style.top = r.top + 'px';
-        document.body.appendChild(f); setTimeout(() => f.remove(), 1200);
-    },
-    diceCinematic(e, res, cb) {
-        let m = document.getElementById('modal-dice'); m.style.display = 'flex';
-        document.getElementById('dice-header').innerText = `${e.name} ROLLS`;
-        let cube = document.getElementById('dice-mesh'); cube.className = 'dice-cube anim-rumble'; cube.innerText = '🎲';
-        setTimeout(() => { AudioSYS.sfxImpact(); cube.className = 'dice-cube'; cube.innerText = res; setTimeout(() => { m.style.display = 'none'; cb(); }, 800); }, 1000);
-    },
-    alert(title, msg, cb) {
-        document.getElementById('modal-alert').style.display = 'flex'; document.getElementById('alert-title').innerText = title; document.getElementById('alert-message').innerHTML = msg;
-        let btn = document.getElementById('alert-buttons'); btn.innerHTML = `<button class="btn" style="width:100%">OK</button>`; btn.querySelector('button').onclick = () => { this.close('modal-alert'); if(cb) cb(); };
-    },
-    openShop(e) {
-        document.getElementById('modal-shop').style.display = 'flex';
-        document.getElementById('shop-wallet').innerHTML = `YOUR STASH: ${e.acorns} 🌰`;
-        let grid = document.getElementById('shop-items'); grid.innerHTML = '';
-        for(let key in DB.items) {
-            let r = DB.items[key], canBuy = e.acorns >= r.req;
-            grid.innerHTML += `
-                <div class="shop-card" style="opacity:${canBuy?1:0.4}">
-                    <div style="font-size:3rem;text-align:center;">${r.icon}</div>
-                    <h3 style="color:var(--cyan);text-align:center;margin:5px 0;">${r.name}</h3>
-                    <p style="font-size:0.85rem;color:#aaa;text-align:center;flex:1;">${r.desc}</p>
-                    <div class="recipe-cost">${r.req} 🌰</div>
-                    <button class="btn" style="padding:10px;font-size:1rem;margin-top:10px;" ${canBuy?'':'disabled'} onclick="Omega.buyItem(Omega.entities[Omega.state.turnIdx], '${key}')">BUY</button>
-                </div>`;
-        }
-    },
-    openInstructions() { document.getElementById('modal-instructions').style.display = 'flex'; },
-    close(id) { document.getElementById(id).style.display = 'none'; }
-};
+function updateTokens() {
+    document.querySelectorAll('.token-nest').forEach(n => n.innerHTML = '');
+    GameState.players.forEach(p => {
+        let t = document.createElement('div');
+        t.className = 'player-token';
+        t.style.backgroundColor = p.color;
+        t.innerText = p.icon;
+        document.getElementById(`nest-${p.pos}`).appendChild(t);
+    });
+}
 
-function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function renderHUD() {
+    let box = document.getElementById('players-hud');
+    box.innerHTML = '';
+    GameState.players.forEach((p, i) => {
+        let active = i === GameState.turnIdx ? 'active' : '';
+        box.innerHTML += `
+            <div class="player-card ${active}" style="border-left: 8px solid ${p.color}">
+                <h3 style="margin-bottom: 5px; font-size: 22px;">${p.icon} ${p.name}</h3>
+                <div style="font-weight: bold; color: ${active ? '#333' : '#ccc'};">
+                    🌰 Acorns: <span style="color: #d50000;">${p.acorns}</span><br>
+                    🤝 Allies: <span style="color: #20b2aa;">${p.allies}</span>
+                </div>
+            </div>
+        `;
+    });
+}
 
-Interface.setupInit();
+function log(msg) {
+    let t = document.getElementById('terminal');
+    t.innerHTML = `<div>> ${msg}</div>` + t.innerHTML;
+}
+
+// Boot
+window.onload = buildBoard;
 
 </script>
 </body>
